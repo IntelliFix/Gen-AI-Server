@@ -1,0 +1,5 @@
+blueprints:
+  main_bp:
+    root_path: main_bp
+    routes:
+      test-route: /test
