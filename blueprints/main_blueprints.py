@@ -8,9 +8,9 @@ def test_API():
     try:
         request_data = request.get_json()
 
-        text = request_data.get("question")
+        question = request_data.get("question")
 
-        return {"Echo":text}
+        return {"Echo":question}
 
     except Exception as e:
         return [], 500
