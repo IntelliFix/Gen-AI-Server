@@ -3,3 +3,4 @@ blueprints:
     root_path: main_bp
     routes:
       test-route: /test
+      code-fixer-route: /code-fixer
