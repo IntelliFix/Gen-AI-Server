@@ -3,6 +3,8 @@ from flask import jsonify
 from yaml_loader import blueprint_yaml
 from GCP.JSONParser import standardOutputParser
 from GCP.REPLAgent import pythonAgent
+from langchain.load.dump import dumps
+import json
 import os
 import asyncio
 
@@ -26,14 +28,11 @@ async def code_fixer():
         request_data = request.get_json()
 
         code = request_data.get("code")
+        comment = request_data.get("comment")
         
-        llm_response = await asyncio.to_thread(pythonAgent, code)
-        print(llm_response)
-
-        json_response = standardOutputParser(llm_response)
-        print(json_response)
+        llm_response = pythonAgent(code,comment)
         
-        return jsonify({"code":json_response["code"], "comment":json_response["comment"]})
+        return llm_response.text
 
     except Exception as e:
         return {"error": str(e)},500

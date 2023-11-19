@@ -7,10 +7,11 @@ from langchain.llms import vertexai
 from langchain.agents.agent_types import AgentType
 from langchain.chat_models import ChatVertexAI
 from GCP.JSONParser import standardOutputParser
+from GCP.PaLM import PaLMChat
 
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="../future-oasis-396818-f8f0f89a62f0.json"
-def pythonAgent(input_code):
+def pythonAgent(input_code,comment):
     
     parameters = {
         "candidate_count": 1,
@@ -19,28 +20,21 @@ def pythonAgent(input_code):
         "top_p": 0.8,
         "top_k": 40
     }
+    
 
     agent_executor = create_python_agent(
         llm=ChatVertexAI(**parameters),
         tool=PythonREPLTool(),
         verbose=True,
         agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
-        agent_executor_kwargs={"handle_parsing_errors": True},
+        agent_executor_kwargs={"handle_parsing_errors": True, "max_iterations":4,"return_intermediate_steps":True,"return_output":False},
     )
     
-#     input_code = """
-# def bubble_sort(arr):
-#     n = len(arr)
-#     for i in range(n):
-#         for j in range(0, n - i - 1):
-#             if arr[j] < arr[j + 1]:
-#                 arr[j], arr[j] = arr[j + 1], arr[j]
-#     return arr
-#     """
-    
-    x = agent_executor.run(f"""Ignore missing dependencies. What is wrong with the following code: ```{input_code}```?\
-        If something is wrong, please output the corrected code and comment about what was wrong""")
-    return x
-    
-# test = pythonAgent("def bubble_sort(arr):\n  n = len(arr)\n  for i in range(n):\n    for j in range(0, n - i - 1):\n      if arr[j] < arr[j + 1]:\n        arr[j], arr[j + 1] = arr[j + 1], arr[j]\n  return arr")
-# print("The final output: ", standardOutputParser(test))
+    augmented_code = input_code + " # " + comment
+    x = agent_executor(f"""Ignore missing dependencies. What is wrong with the following code: ```{augmented_code}```?\
+        Answer with the corrected code and your comments on what was wrong""")
+    response = PaLMChat(x)
+    # PALMs response object has many attributes, make sure to check them.
+    # print(x)
+    print("The whole response", response)
+    return response.candidates[0]
