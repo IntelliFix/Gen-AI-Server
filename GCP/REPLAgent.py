@@ -8,7 +8,7 @@ from langchain.agents.agent_types import AgentType
 from langchain.chat_models import ChatVertexAI
 from GCP.JSONParser import standardOutputParser
 from GCP.PaLM import PaLMChat
-
+from GCP.LangchainLECL import LECLchat
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="../future-oasis-396818-f8f0f89a62f0.json"
 def pythonAgent(input_code,comment):
@@ -31,10 +31,11 @@ def pythonAgent(input_code,comment):
     )
     
     augmented_code = input_code + " # " + comment
-    x = agent_executor(f"""Ignore missing dependencies. What is wrong with the following code: ```{augmented_code}```?\
+    x = agent_executor(f"""If a function name is provided, try to deduce what the function does from it. Ignore missing dependencies. \
+        What is wrong with the following code: ```{augmented_code}```?\
         Answer with the corrected code and your comments on what was wrong""")
-    response = PaLMChat(x)
+    response = LECLchat(x)
     # PALMs response object has many attributes, make sure to check them.
-    # print(x)
-    print("The whole response", response)
-    return response.candidates[0]
+    print("...........................")
+    print(response)
+    return response

@@ -32,7 +32,7 @@ async def code_fixer():
         
         llm_response = pythonAgent(code,comment)
         
-        return llm_response.text
+        return llm_response
 
     except Exception as e:
         return {"error": str(e)},500
