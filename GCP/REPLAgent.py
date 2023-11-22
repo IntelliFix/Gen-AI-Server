@@ -10,7 +10,7 @@ from GCP.JSONParser import standardOutputParser
 from GCP.PaLM import PaLMChat
 from GCP.LangchainLECL import LECLchat
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="../future-oasis-396818-f8f0f89a62f0.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="../favorable-beach-405907-82da62472ba1.json"
 def pythonAgent(input_code,comment):
     
     parameters = {
@@ -37,5 +37,6 @@ def pythonAgent(input_code,comment):
     response = LECLchat(x)
     # PALMs response object has many attributes, make sure to check them.
     print("...........................")
-    print(response)
+    # print(response)
+    # return response.text if you'll use PaLMChat instead of LECLChat
     return response

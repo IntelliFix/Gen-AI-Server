@@ -11,7 +11,7 @@ import os
 import dotenv
 
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="../future-oasis-396818-f8f0f89a62f0.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="../favorable-beach-405907-82da62472ba1.json"
 load_dotenv()
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 
