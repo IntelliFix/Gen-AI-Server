@@ -23,13 +23,13 @@ dotenv.load_dotenv()
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "../gen-lang-client-0381077545-08b61ee2a65e.json"
 
-uri = "mongodb+srv://karim:karim@cluster0.mqdt2q9.mongodb.net/?retryWrites=true&w=majority"
+uri = os.getenv("uri")
 client = MongoClient(uri)
 
 chat = ChatVertexAI(model_name="chat-bison",temperature=0)
 
 message_history = MongoDBChatMessageHistory(
-    connection_string=uri, session_id="test-session", collection_name= "Fathy"
+    connection_string=uri, session_id="test-session", collection_name= "Migo"
 )
 # put session and collection name accordingly
 
