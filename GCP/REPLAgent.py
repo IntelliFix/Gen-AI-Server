@@ -1,11 +1,11 @@
 import os
-from langchain.agents.agent_toolkits import create_python_agent
-from langchain.tools import PythonREPLTool
-from langchain.tools import PythonAstREPLTool
-from langchain.utilities import PythonREPL
-from langchain.llms import vertexai
+from langchain_experimental.agents.agent_toolkits import create_python_agent
+from langchain_experimental.tools import PythonREPLTool
+# from langchain.tools import PythonAstREPLTool
+from langchain_community.utilities import PythonREPL
+from langchain_community.llms import vertexai
 from langchain.agents.agent_types import AgentType
-from langchain.chat_models import ChatVertexAI
+from langchain_community.chat_models import ChatVertexAI
 from GCP.JSONParser import standardOutputParser
 from GCP.PaLM import PaLMChat
 from GCP.LangchainLECL import LECLchat

@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 from langchain.prompts import ChatPromptTemplate
-from langchain.chat_models import ChatGooglePalm
-from langchain.chat_models import ChatVertexAI
+from langchain_community.chat_models import ChatGooglePalm
+from langchain_community.chat_models import ChatVertexAI
 from langchain.output_parsers import PydanticOutputParser
 from dotenv import load_dotenv
 import os

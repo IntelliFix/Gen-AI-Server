@@ -1,7 +1,7 @@
 import vertexai
 from pydantic import BaseModel, Field
 from langchain.prompts import ChatPromptTemplate
-from langchain.chat_models import ChatGooglePalm
+from langchain_community.chat_models import ChatGooglePalm
 from langchain.output_parsers.openai_functions import JsonOutputFunctionsParser
 from langchain.utils.openai_functions import convert_pydantic_to_openai_function
 from dotenv import load_dotenv
