@@ -4,6 +4,7 @@ from yaml_loader import blueprint_yaml
 from GCP.JSONParser import standardOutputParser
 from GCP.REPLAgent import pythonAgent
 from langchain.load.dump import dumps
+from chatbot.chatbot import chatbot
 import json
 import os
 import asyncio
@@ -36,3 +37,17 @@ async def code_fixer():
 
     except Exception as e:
         return {"error": str(e)},500
+    
+@blueprints.route(main_bp["chatbot-route"], methods=["POST"])
+def chat():
+    try:
+        request_data = request.get_json()
+
+        session_id = request_data.get("session_id")
+        message = request_data.get("message")
+
+        response = chatbot(session_id=session_id, user_input=message)
+        return {"output": response}
+    
+    except Exception as e:
+        return [], 500

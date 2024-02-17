@@ -8,8 +8,8 @@ from google.cloud import aiplatform
 load_dotenv()
 app = Flask(__name__)
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="future-oasis-396818-f8f0f89a62f0.json"
-aiplatform.init(project='future-oasis-396818')
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="favorable-beach-405907-82da62472ba1.json"
+aiplatform.init(project='favorable-beach-405907')
 # sys.path.append("../..")
 
 

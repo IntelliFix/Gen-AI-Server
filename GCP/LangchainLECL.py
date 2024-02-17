@@ -1,14 +1,14 @@
 from pydantic import BaseModel, Field
 from langchain.prompts import ChatPromptTemplate
-from langchain.chat_models import ChatGooglePalm
-from langchain.chat_models import ChatVertexAI
+from langchain_community.chat_models import ChatGooglePalm
+from langchain_community.chat_models import ChatVertexAI
 from langchain.output_parsers import PydanticOutputParser
 from dotenv import load_dotenv
 import os
 
 load_dotenv()
-GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="../future-oasis-396818-f8f0f89a62f0.json"
+# GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="../favorable-beach-405907-82da62472ba1.json"
 
     
 class OutputResponse(BaseModel):

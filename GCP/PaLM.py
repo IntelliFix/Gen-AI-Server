@@ -1,7 +1,7 @@
 import vertexai
 from pydantic import BaseModel, Field
 from langchain.prompts import ChatPromptTemplate
-from langchain.chat_models import ChatGooglePalm
+from langchain_community.chat_models import ChatGooglePalm
 from langchain.output_parsers.openai_functions import JsonOutputFunctionsParser
 from langchain.utils.openai_functions import convert_pydantic_to_openai_function
 from dotenv import load_dotenv
@@ -11,7 +11,7 @@ import os
 import dotenv
 
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="../future-oasis-396818-f8f0f89a62f0.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="../favorable-beach-405907-82da62472ba1.json"
 load_dotenv()
 GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
 
