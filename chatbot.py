@@ -1,5 +1,5 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
-from chatbot.tools import tools
+from tools import tools
 from langchain import hub
 from langchain_openai import ChatOpenAI
 from langchain.agents import AgentExecutor, create_structured_chat_agent
@@ -26,14 +26,14 @@ def chatbot(session_id,user_input):
     )
     
     
-    summarized_memory= ConversationSummaryBufferMemory(
-        llm=gemini_llm,
-        chat_memory=message_history,
-        memory_key='chat_history',
-        return_messages=True,
-        max_token_limit=50
-    )
-    print(summarized_memory)
+    # summarized_memory= ConversationSummaryBufferMemory(
+    #     llm=gemini_llm,
+    #     chat_memory=message_history,
+    #     memory_key='chat_history',
+    #     return_messages=True,
+    #     max_token_limit=50
+    # )
+    # print(summarized_memory)
     
     prompt = hub.pull("abdelmegeed/chat_agent")
     print(f"Prompt: {prompt}")
@@ -48,7 +48,7 @@ def chatbot(session_id,user_input):
             handle_parsing_errors=True,
             return_intermediate_steps=True,
     )
-    
+    print(message_history.messages)
     response = agent_executor.invoke(
                 {
                     "input": f"{user_input}",
