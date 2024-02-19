@@ -51,4 +51,4 @@ def chat():
     
     except Exception as e:
         print(e)
-        return [], 500
+        return {"exception":str(e)}, 500
