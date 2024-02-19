@@ -1,7 +1,7 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 from tools import tools
 from langchain import hub
-from langchain_openai import ChatOpenAI
+# from langchain_openai import ChatOpenAI
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from langchain.memory import MongoDBChatMessageHistory, ConversationSummaryBufferMemory
 import os

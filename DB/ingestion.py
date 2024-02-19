@@ -9,7 +9,7 @@ from tqdm.auto import tqdm
 
 load_dotenv()
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="favorable-beach-405907-82da62472ba1.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="arctic-acolyte-414610-c6dcb23dd443.json"
 
 pinecone.init(
     api_key=os.environ["PINECONE_API_KEY"],

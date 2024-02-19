@@ -50,4 +50,5 @@ def chat():
         return {"output": response}
     
     except Exception as e:
+        print(e)
         return [], 500
