@@ -4,7 +4,7 @@ from yaml_loader import blueprint_yaml
 from GCP.JSONParser import standardOutputParser
 from GCP.REPLAgent import pythonAgent
 from langchain.load.dump import dumps
-from chatbot.chatbot import chatbot
+from chatbot import chatbot
 import json
 import os
 import asyncio
