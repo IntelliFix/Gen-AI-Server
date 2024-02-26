@@ -10,3 +10,4 @@ venv
 __pycache__/
 arctic-acolyte-414610-c6dcb23dd443.json
 genai
+# /models/
