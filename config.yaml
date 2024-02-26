@@ -5,3 +5,4 @@ blueprints:
       test-route: /test
       code-fixer-route: /code-fixer
       chatbot-route: /chatbot
+      prompt-injection-route: /prompt-injection

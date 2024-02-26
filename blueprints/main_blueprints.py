@@ -2,6 +2,7 @@ from flask import request
 from flask import jsonify
 from yaml_loader import blueprint_yaml
 from GCP.JSONParser import standardOutputParser
+from injection import prompt_injection
 from GCP.REPLAgent import pythonAgent
 from langchain.load.dump import dumps
 from chatbot import chatbot
@@ -48,6 +49,21 @@ def chat():
 
         response = chatbot(session_id=session_id, user_input=message)
         return {"output": response}
+    
+    except Exception as e:
+        print(e)
+        return {"exception":str(e)}, 500
+    
+# In order to use this route, you need to have the model's (deberta text classifier) folder in the project
+@blueprints.route(main_bp["prompt-injection-route"], methods=["POST"])
+def injection():
+    try:
+        request_data = request.get_json()
+
+        message = request_data.get("message")
+
+        response = prompt_injection(message)
+        return response[0]
     
     except Exception as e:
         print(e)
