@@ -4,3 +4,4 @@ blueprints:
     routes:
       test-route: /test
       code-fixer-route: /code-fixer
+      chatbot-route: /chatbot
