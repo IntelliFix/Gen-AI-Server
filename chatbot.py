@@ -17,6 +17,7 @@ def chatbot(session_id,user_input):
     #                       a question, you should check its scope. If the question is about python programming,
     #                       you should answer it with the best of your knowledge. If the question is anything
     #                       else, you should answer "Sorry, I am a pyhton Assistant only!" """
+    
     gemini_llm = ChatGoogleGenerativeAI(model='gemini-pro', verbose=True, temperature=0, convert_system_message_to_human=True)
     # gpt_llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613")
 
@@ -25,15 +26,6 @@ def chatbot(session_id,user_input):
         connection_string=uri, session_id=session_id, collection_name= "Chats"
     )
     
-    
-    # summarized_memory= ConversationSummaryBufferMemory(
-    #     llm=gemini_llm,
-    #     chat_memory=message_history,
-    #     memory_key='chat_history',
-    #     return_messages=True,
-    #     max_token_limit=50
-    # )
-    # print(summarized_memory)
     
     prompt = hub.pull("abdelmegeed/chat_agent")
     print(f"Prompt: {prompt}")
