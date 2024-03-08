@@ -46,7 +46,7 @@ def chat():
 
         session_id = request_data.get("session_id")
         message = request_data.get("message")
-
+        print("Chatbot")
         response = chatbot(session_id=session_id, user_input=message)
         return {"output": response}
     
@@ -54,7 +54,7 @@ def chat():
         print(e)
         return {"exception":str(e)}, 500
     
-# In order to use this route, you need to have the model's (deberta text classifier) folder in the project
+    
 @blueprints.route(main_bp["prompt-injection-route"], methods=["POST"])
 def injection():
     try:
@@ -63,7 +63,7 @@ def injection():
         message = request_data.get("message")
 
         response = prompt_injection(message)
-        return response[0]
+        return response
     
     except Exception as e:
         print(e)
