@@ -6,11 +6,20 @@ from typing import Any, Dict, List
 from langchain_community.chat_models import ChatVertexAI
 from langchain.chains import ConversationalRetrievalChain
 from langchain.embeddings.vertexai import VertexAIEmbeddings
+from langchain_community.tools import YouTubeSearchTool
 from langchain_community.vectorstores import Pinecone
 
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '..', '..', '.env')
 load_dotenv(dotenv_path)
+
+@tool("youtube_search", return_direct=True)
+def searchYoutube(input:str) -> str:
+    """Useful when you the user needs youtube video recommendations regarding python or programming or tutorials about something python related.
+    DO NOT USE FOR ANY OTHER KIND OF RECOMMENDATIONS"""
+    tool = YouTubeSearchTool()
+    # Makes only 2 recommendations
+    return tool.run(input+",2")
 
 @tool("google_search", return_direct=True)
 def searchGoogle(input:str) -> str:
@@ -18,6 +27,8 @@ def searchGoogle(input:str) -> str:
     search = GoogleSerperAPIWrapper(serper_api_key=os.environ["SERPAPI_API_KEY"])
     return search.run(input)
 
+
+# This tool is only for testing purposes
 @tool("lower_case", return_direct=True)
 def toLowerCase(input:str) -> str:
     """Returns the input as lower case"""
@@ -55,4 +66,4 @@ def langchain_rag(query: str, chat_history: List[Dict[str, Any]] = []):
     print(response)
     return response['answer']
 
-tools = [toLowerCase, searchGoogle, langchain_rag]
+tools = [toLowerCase, searchGoogle, langchain_rag, searchYoutube]
