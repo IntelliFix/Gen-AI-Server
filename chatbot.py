@@ -1,4 +1,5 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_community.chat_models import ChatOllama
 from tools import tools
 from langchain import hub
 # from langchain_openai import ChatOpenAI
@@ -17,7 +18,9 @@ def chatbot(session_id,user_input):
     #                       a question, you should check its scope. If the question is about python programming,
     #                       you should answer it with the best of your knowledge. If the question is anything
     #                       else, you should answer "Sorry, I am a pyhton Assistant only!" """
-    gemini_llm = ChatGoogleGenerativeAI(model='gemini-pro', verbose=True, temperature=0, convert_system_message_to_human=True)
+    
+    gemini_llm = ChatGoogleGenerativeAI(model='gemini-pro', verbose=True, temperature=0)
+    open_source_llm = ChatOllama(model="llama2",verbose=True ,temperature=0)
     # gpt_llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613")
 
     uri = os.getenv('MONGODB_CONNECTION_STRING')
@@ -25,21 +28,14 @@ def chatbot(session_id,user_input):
         connection_string=uri, session_id=session_id, collection_name= "Chats"
     )
     
-    
-    # summarized_memory= ConversationSummaryBufferMemory(
-    #     llm=gemini_llm,
-    #     chat_memory=message_history,
-    #     memory_key='chat_history',
-    #     return_messages=True,
-    #     max_token_limit=50
-    # )
-    # print(summarized_memory)
-    
+    # prompt = hub.pull("hwchase17/structured-chat-agent")
+
+    # Can be found at: https://smith.langchain.com/hub/abdelmegeed/chat_agent?organizationId=bcea20b8-f288-5cb3-b935-d73c584ef50f
     prompt = hub.pull("abdelmegeed/chat_agent")
     print(f"Prompt: {prompt}")
 
     
-    chat_agent = create_structured_chat_agent(llm=gemini_llm, tools=tools, prompt=prompt)
+    chat_agent = create_structured_chat_agent(llm=open_source_llm, tools=tools, prompt=prompt)
         
     agent_executor = AgentExecutor.from_agent_and_tools(
             agent=chat_agent, 
