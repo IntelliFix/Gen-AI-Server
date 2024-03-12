@@ -14,7 +14,8 @@ import urllib
 
 
 load_dotenv()
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="arctic-acolyte-414610-c6dcb23dd443.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "arctic-acolyte-414610-c6dcb23dd443.json"
+
 
 def extract_internal_links(url):
     response = requests.get(url)
@@ -31,25 +32,28 @@ def extract_internal_links(url):
             hrefs.append(href)
     # Extract hyperlinks starting with "https" and handle "/..../.../"
     https_links = [
-    url + link if link.startswith("/") else link
-    for url in hrefs if url.startswith("https")
-    for link in hrefs if not link.startswith("#")
-    ]   
+        url + link if link.startswith("/") else link
+        for url in hrefs
+        if url.startswith("https")
+        for link in hrefs
+        if not link.startswith("#")
+    ]
     return https_links
 
+
 def load_data(url, index_name):
-    
+
     internal_links = extract_internal_links(url)
     print(internal_links)
-    
-    embeddings = VertexAIEmbeddings(project='arctic-acolyte-414610', model_name='textembedding-gecko@003')
+
+    embeddings = VertexAIEmbeddings(
+        project="arctic-acolyte-414610", model_name="textembedding-gecko@003"
+    )
     vectorstore = PineconeVectorStore(index_name=index_name, embedding=embeddings)
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size = 1000,
-        chunk_overlap  = 100,
-        length_function = len,
-        add_start_index = True)
-    
+        chunk_size=1000, chunk_overlap=100, length_function=len, add_start_index=True
+    )
+
     with tqdm(total=len(internal_links)) as pbar:
         for link in internal_links:
             try:
@@ -63,5 +67,11 @@ def load_data(url, index_name):
 
     return "Done"
 
-print(load_data("https://python.langchain.com/docs/get_started/introduction","langchain-test-index" ))
+
+print(
+    load_data(
+        "https://python.langchain.com/docs/get_started/introduction",
+        "langchain-test-index",
+    )
+)
 # print(extract_internal_links("https://python.langchain.com/docs/get_started/introduction"))
