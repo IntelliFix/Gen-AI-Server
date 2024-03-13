@@ -31,12 +31,10 @@ def pythonAgent(input_code,comment):
     )
     
     augmented_code = input_code + " # " + comment
-    x = agent_executor(f"""If a function name is provided, try to deduce what the function does from it. Ignore missing dependencies. \
+    agent_executor_chain = agent_executor(f"""If a function name is provided, try to deduce what the function does from it. Ignore missing dependencies. \
         What is wrong with the following code: ```{augmented_code}```?\
         Answer with the corrected code and your comments on what was wrong""")
-    response = LECLchat(x)
-    # PALMs response object has many attributes, make sure to check them.
-    print("...........................")
-    # print(response)
-    # return response.text if you'll use PaLMChat instead of LECLChat
+    print("Response from the agent executor:")
+    # print(agent_executor_chain)
+    response = LECLchat(agent_executor_chain)
     return response
