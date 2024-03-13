@@ -1,11 +1,9 @@
 from gradio_client import Client
 
+
 def prompt_injection(input):
     client = Client("M-Abdelmegeed/Deberta-Prompt-Injection-Detector")
-    result = client.predict(
-		input,
-		api_name="/predict"
-    )
+    result = client.predict(input, api_name="/predict")
     return result
 
 

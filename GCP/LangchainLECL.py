@@ -14,9 +14,11 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="../arctic-acolyte-414610-c6dcb23dd
 # Output Parser    
 class OutputResponse(BaseModel):
     "Outputs the comment and corrected code as a JSON object"
-    comment: str = Field(description="Comment about the incorrect code and what was wrong")
+    comment: str = Field(
+        description="Comment about the incorrect code and what was wrong"
+    )
     corrected_code: str = Field(description="The corrected python code")
-    
+
     def to_dict(self):
         return {"comment":self.comment,"corrected_code":self.corrected_code}
     
