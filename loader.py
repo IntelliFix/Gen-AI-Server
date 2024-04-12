@@ -25,7 +25,8 @@ nltk.download('averaged_perceptron_tagger')
 
 
 load_dotenv()
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"]="arctic-acolyte-414610-c6dcb23dd443.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "arctic-acolyte-414610-c6dcb23dd443.json"
+
 
 def extract_internal_links(url):
     response = requests.get(url)
@@ -99,6 +100,13 @@ def load_data(url, index):
 
     return "Vector store updated successfully!"
 
+
+print(
+    load_data(
+        "https://python.langchain.com/docs/get_started/introduction",
+        "langchain-test-index",
+    )
+)
 # print(load_data("https://python.langchain.com/docs/get_started/introduction","langchain-test-index" ))
 # print(extract_internal_links("https://python.langchain.com/docs/get_started/introduction"))
 # preprocess_document("https://python.langchain.com/docs/get_started/introduction", "langchain-test-index")

@@ -10,7 +10,8 @@ import json
 import os
 import asyncio
 
-main_bp, blueprints = blueprint_yaml("blueprints","main_bp")
+main_bp, blueprints = blueprint_yaml("blueprints", "main_bp")
+
 
 @blueprints.route(main_bp["test-route"], methods=["POST"])
 def test_API():
@@ -19,11 +20,12 @@ def test_API():
 
         question = request_data.get("question")
 
-        return {"Echo":question}
+        return {"Echo": question}
 
     except Exception as e:
         return [], 500
-    
+
+
 @blueprints.route(main_bp["code-fixer-route"], methods=["POST"])
 async def code_fixer():
     try:
@@ -31,14 +33,15 @@ async def code_fixer():
 
         code = request_data.get("code")
         comment = request_data.get("comment")
-        
-        llm_response = pythonAgent(code,comment)
-        
+
+        llm_response = pythonAgent(code, comment)
+
         return llm_response
 
     except Exception as e:
-        return {"error": str(e)},500
-    
+        return {"error": str(e)}, 500
+
+
 @blueprints.route(main_bp["chatbot-route"], methods=["POST"])
 def chat():
     try:
@@ -49,12 +52,12 @@ def chat():
         print("Chatbot")
         response = chatbot(session_id=session_id, user_input=message)
         return {"output": response}
-    
+
     except Exception as e:
         print(e)
-        return {"exception":str(e)}, 500
-    
-    
+        return {"exception": str(e)}, 500
+
+
 @blueprints.route(main_bp["prompt-injection-route"], methods=["POST"])
 def injection():
     try:
@@ -64,7 +67,7 @@ def injection():
 
         response = prompt_injection(message)
         return response
-    
+
     except Exception as e:
         print(e)
-        return {"exception":str(e)}, 500
+        return {"exception": str(e)}, 500
