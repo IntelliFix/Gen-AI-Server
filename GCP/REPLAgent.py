@@ -1,7 +1,7 @@
 import os
 from langchain_experimental.agents.agent_toolkits import create_python_agent
 from langchain_experimental.tools import PythonREPLTool
-
+from langchain_community.chat_models import ChatOllama
 # from langchain.tools import PythonAstREPLTool
 from langchain_community.utilities import PythonREPL
 from langchain_community.llms import vertexai
@@ -28,6 +28,8 @@ def pythonAgent(input_code, comment):
 
     agent_executor = create_python_agent(
         llm=ChatVertexAI(**parameters),
+        # Using Llama 7B responded in 23 mins for DFS question
+        # llm= ChatOllama(model='llama2', temperature=0, top_k=40, top_p=0.8),
         tool=PythonREPLTool(),
         verbose=True,
         agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
