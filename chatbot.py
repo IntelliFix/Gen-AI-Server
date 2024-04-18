@@ -10,7 +10,7 @@ import os
 from dotenv import load_dotenv
 
 dotenv_path = os.path.join(os.path.dirname(__file__), "..", "..", ".env")
-load_dotenv(dotenv_path)
+load_dotenv()
 
 
 def chatbot(session_id, user_input):
@@ -22,7 +22,7 @@ def chatbot(session_id, user_input):
     #                       you should answer it with the best of your knowledge. If the question is anything
     #                       else, you should answer "Sorry, I am a pyhton Assistant only!" """
 
-    gemini_llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
+    gemini_llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0, google_api_key=os.getenv("GOOGLE_API_KEY"))
     # open_source_llm = ChatOllama(model="llama2",verbose=True ,temperature=0)
     # gpt_llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613")
 
@@ -65,3 +65,5 @@ def chatbot(session_id, user_input):
     else:
         message_history.add_ai_message(response["output"])
         return response["output"]
+    
+# print(chatbot("12893", "Is there anything new about OpenAI's Assistants APIs?"))
