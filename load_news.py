@@ -2,6 +2,7 @@ from langchain_community.document_loaders import WebBaseLoader, UnstructuredURLL
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from dotenv import load_dotenv
 from tqdm import tqdm
+from langchain_mongodb import MongoDBAtlasVectorSearch
 from langchain_google_vertexai import VertexAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from langchain_community.vectorstores import Pinecone as PineconeLangChain
@@ -13,9 +14,8 @@ from unstructured.chunking.basic import chunk_elements
 from langchain_core.documents import Document
 import urllib
 import os
-import requests
-import nltk
-nltk.download('averaged_perceptron_tagger')
+from pymongo.mongo_client import MongoClient
+from pymongo.server_api import ServerApi
 
 
 load_dotenv()
@@ -29,34 +29,35 @@ def extract_internal_links(url):
     for element in elements:
         if element.metadata.link_urls:
             relative_link = element.metadata.link_urls[0][1:]
-            if relative_link.startswith("docs"):
-                links.append(f"https://python.langchain.com/{relative_link}")
-                url = "https://python.langchain.com/" + relative_link
+            if relative_link.startswith("category") or relative_link.startswith("article") :
+                links.append(f"https://www.infoworld.com/{relative_link}")
+                url = "https://www.infoworld.com/" + relative_link
                 partitions = partition_html(url=url)
                 for partition in partitions:
                     if partition.metadata.link_urls:
                         relative_link = partition.metadata.link_urls[0][1:]
-                        if relative_link.startswith("docs"):
-                            links.append(f"https://python.langchain.com/{relative_link}")
+                        if relative_link.startswith("category") or relative_link.startswith("category"):
+                            links.append(f"https://www.infoworld.com/{relative_link}")
     
     return links
 
 
 # https://github.com/langchain-ai/langchainjs/docs/get_started/quickstart/
 def preprocess_document(url, index_name):
+    uri = os.getenv("MONGODB_CONNECTION_STRING")
+    mongo_client = MongoClient(uri, server_api=ServerApi('1'))
+    collection = mongo_client["GenAI-DB"][index_name]
     embedding_model = VertexAIEmbeddings(project='arctic-acolyte-414610', model_name='textembedding-gecko@003')
-    vectorstore = PineconeVectorStore(index_name=index_name, embedding=embedding_model)
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size = 1000,
-        chunk_overlap  = 100,
-        length_function = len,
-        add_start_index = True)
+    vector_store = MongoDBAtlasVectorSearch(collection,embedding_model)
+    # text_splitter = RecursiveCharacterTextSplitter(
+    #     chunk_size = 1000,
+    #     chunk_overlap  = 100,
+    #     length_function = len,
+    #     add_start_index = True)
     try:
         elements = partition_html(url=url)
         elements = chunk_elements(elements)
-        # elements = text_splitter.split_text(elements)
         print("Element", elements)
-        # print("Elements", elements)
         print("Element: ", elements[0])
         documents = []
         for element in elements:
@@ -68,22 +69,14 @@ def preprocess_document(url, index_name):
                         'url':metadata["url"],
                         'orig_elements': metadata["orig_elements"]}
             documents.append(Document(page_content=element.text, metadata=metadata))
-        vectorstore.add_documents(documents=documents)
+            vector_store.add_documents(documents=documents)
         print("Doksh added")
     except Exception as e:
         print(e)
-    # elements = partition_html(url=url)
-    # element_dict = [el.to_dict() for el in elements]
-    # example_output = json.dumps(element_dict, indent=2)
-    # Convert string to an array
-    # arr = ast.literal_eval(example_output)
-    # print(example_output)
-
 
 
 def load_data(url, index):
     internal_links = extract_internal_links(url)
-    # print(internal_links)
 
     with tqdm(total=len(internal_links)) as pbar:
         for link in internal_links:
@@ -95,10 +88,9 @@ def load_data(url, index):
 
 print(
     load_data(
-        "https://python.langchain.com/docs/get_started/introduction",
-        "langchain-test-index",
+        "https://www.infoworld.com",
+        "Latest-Python-News-Index",
     )
 )
-# print(load_data("https://python.langchain.com/docs/get_started/introduction","langchain-test-index" ))
-# print(extract_internal_links("https://python.langchain.com/docs/get_started/introduction"))
-# preprocess_document("https://python.langchain.com/docs/get_started/introduction", "langchain-test-index")
+
+# print(len(extract_internal_links("https://www.infoworld.com")))
