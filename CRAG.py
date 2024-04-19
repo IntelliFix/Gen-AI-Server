@@ -26,6 +26,7 @@ from langchain.schema import Document
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_community.chat_models import ChatOllama
 from langchain import hub
+
 # from langchain_openai import ChatOpenAI
 from langchain.agents import AgentExecutor, create_structured_chat_agent
 from langchain.memory import MongoDBChatMessageHistory, ConversationSummaryBufferMemory
@@ -36,11 +37,29 @@ from langchain_core.utils.function_calling import convert_to_openai_tool
 from langchain.output_parsers.openai_tools import PydanticToolsParser
 import pprint
 from langgraph.graph import END, StateGraph
+from google.cloud import aiplatform
+from langchain.chains import LLMChain
 
 
 # langchain function will take state as parameter
-@tool("library_rag", return_direct=True)
-def library_rag(inputs):
+dotenv_path = os.path.join(os.path.dirname(__file__), "..", "..", ".env")
+load_dotenv(dotenv_path)
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "arctic-acolyte-414610-c6dcb23dd443.json"
+aiplatform.init(project="arctic-acolyte-414610")
+
+uri = os.getenv("MONGODB_CONNECTION_STRING")
+message_history = MongoDBChatMessageHistory(
+        connection_string=uri, session_id="5", collection_name="Chats"
+    )
+
+inputs = {
+    "keys": {
+        "question": "what are different langchain agents?",
+        "chat_history": message_history.messages
+    }
+}
+
+def crag(inputs):
     """Useful when you need to answer questions regarding anything or everything about langchain python library. You need to input the query
     as a parameter, as well as the chat history as an array."""
     workflow = StateGraph(GraphState)
@@ -80,60 +99,78 @@ def library_rag(inputs):
     # Final generation
     pprint.pprint(value["keys"]["generation"])
     return value["keys"]["generation"]
-    
+
+
 class GraphState(TypedDict):
     """
     Represents the state of our graph.
 
     Attributes:
-        A dictionary where each key is a string.
+        keys: A dictionary where each key is a string.
     """
 
-    def __init__(self, state_dict: Dict[str, Any]):
-        self.state_dict = state_dict
+    keys: Dict[str, any]
 
-def retriever(inputs: Dict[str, Any]):
+
+def retriever(state):
     """Retrieve documents from vector store"""
-    embeddings = VertexAIEmbeddings(project='arctic-acolyte-414610')
-    
+    embeddings = VertexAIEmbeddings(project="arctic-acolyte-414610")
+
     docsearch = Pinecone.from_existing_index(
         embedding=embeddings,
         index_name="langchain-test-index",
     )
-    print("docsearch: ",docsearch)
-        
+    print("docsearch: ", docsearch)
+
     parameters = {
         "candidate_count": 1,
         "max_output_tokens": 1024,
         "temperature": 0,
         "top_p": 0.8,
         "top_k": 40,
-        "verbose":'true'
+        "verbose": "true",
     }
-    
-    chat = ChatVertexAI(
-        **parameters
-    )
-    
-    qa = ConversationalRetrievalChain.from_llm(
-        llm=chat, retriever=docsearch.as_retriever(), return_source_documents=True, verbose=True
-     )
-    print("---RETRIEVE---")
-    query = inputs['question']
-    chat_history = inputs['chat_history']
-    response = qa({"question": query, "chat_history": chat_history})
-    return {"documents": response['answer'], "question": query, "chat_history": chat_history}
 
-def generate(inputs: Dict[str, Any]):
+    chat = ChatVertexAI(**parameters)
+
+    qa = ConversationalRetrievalChain.from_llm(
+        llm=chat,
+        retriever=docsearch.as_retriever(),
+        return_source_documents=True,
+        verbose=True,
+    )
+    print("---RETRIEVE---")
+    state_dict = state["keys"]
+    question = state_dict["question"]
+    chat_history = state_dict["chat_history"]
+    response = qa({"question": question, "chat_history": chat_history})
+    print("hereee")
+    print("documents: ",response["answer"])
+    return {
+        "keys": {
+            "documents": response["answer"],
+            "question": question,
+            "chat_history": chat_history,
+        }
+    }
+
+
+def generate(state):
     """Generate an answer based on the retrieved documents."""
     print("---GENERATE---")
-    question = inputs["question"]
-    documents = inputs["documents"]
-    chat_history = inputs["chat_history"]
+    state_dict = state["keys"]
+    question = state_dict["question"]
+    documents = state_dict["documents"]
+    chat_history = state_dict["chat_history"]
+
+    print("question: ", question)
+    print("documents: ", documents)
+    print("chat_history: ", chat_history)
 
     # Prompt
+    #removed hwar el history ashan el attention.
     prompt_template = """
-        Given the following documents {documents} and the following chat histroy {chat_history}, what is the answer to the following question: {question}
+        Given the following documents {documents} what is the answer to the following question: {question}
         """
     prompt_template = PromptTemplate(
         input_variables=["documents", "chat_history", "question"],
@@ -141,7 +178,7 @@ def generate(inputs: Dict[str, Any]):
     )
 
     # LLM
-    llm = ChatGoogleGenerativeAI(model='gemini-pro', verbose=True, temperature=0)
+    llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
 
     # Post-processing
     def format_docs(docs):
@@ -151,36 +188,44 @@ def generate(inputs: Dict[str, Any]):
     rag_chain = prompt_template | llm | StrOutputParser()
 
     # Run
-    generation = rag_chain.invoke({"documents": documents, "chat_history":chat_history, "question": question})
-    return {"documents": documents, "question": question, "generation": generation, "chat_history": chat_history}
+    generation = rag_chain.invoke(
+        {"documents": documents, "chat_history": chat_history, "question": question}
+    )
+   
+    return {
+        "keys": {
+            "documents": documents,
+            "question": question,
+            "chat_history": chat_history,
+            "generation": generation,
+        }
+    }
 
-def grading_documents(inputs):
+
+def grading_documents(state):
     """Determines whether the retrieved documents are relevant to the question."""
     print("---CHECK RELEVANCE---")
-    question = inputs["question"]
-    documents = inputs["documents"]
-    chat_history = inputs["chat_history"]
-
-    # Data model
-    class grade(BaseModel):
-        """Binary score for relevance check."""
-
-        binary_score: str = Field(description="Relevance score 'yes' or 'no'")
+    state_dict = state["keys"]
+    question = state_dict["question"]
+    documents = state_dict["documents"]
+    chat_history = state_dict["chat_history"]
 
     # LLM
-    model = ChatGoogleGenerativeAI(model='gemini-pro', verbose=True, temperature=0,streaming=True)
-
-    # Tool
-    grade_tool_oai = convert_to_openai_tool(grade)
-
-    # LLM with tool and enforce invocation
-    llm_with_tool = model.bind(
-        tools=[grade_tool_oai],
-        tool_choice={"type": "function", "function": {"name": "grade"}},
+    model = ChatGoogleGenerativeAI(
+        model="gemini-pro", verbose=True, temperature=0, streaming=True
     )
 
+    # Tool
+    # grade_tool_oai = convert_to_openai_tool(grade)
+
+    # LLM with tool and enforce invocation
+    # llm_with_tool = model.bind(
+    #     tools=[grade_tool_oai],
+    #     tool_choice={"type": "function", "function": {"name": "grade"}},
+    # )
+
     # Parser
-    parser_tool = PydanticToolsParser(tools=[grade])
+    # parser_tool = PydanticToolsParser(tools=[grade])
 
     # Prompt
     prompt = PromptTemplate(
@@ -188,40 +233,49 @@ def grading_documents(inputs):
         Here is the retrieved document: \n\n {context} \n\n
         Here is the user question: {question} \n
         Here is the chat history: {chat_history} \n
-        If the document contains keyword(s) or semantic meaning related to the user question, grade it as relevant. \n
+        If the document contains keyword(s) or semantic meaning related to the user question, grade it as relevant.
+        If it has ZERO relevence then grade it as irrelevant.  \n
         Give a binary score 'yes' or 'no' score to indicate whether the document is relevant to the question.""",
         input_variables=["context", "question", "chat_history"],
     )
+    chain = LLMChain(llm=model, prompt=prompt)
+    
 
     # Chain
-    chain = prompt | llm_with_tool | parser_tool
-
+    # chain = prompt | llm_with_tool | parser_tool
+    print("here relevance")
     # Score
     filtered_docs = []
     search = "No"  # Default do not opt for web search to supplement retrieval
-    for d in documents:
-        score = chain.invoke({"question": question, "context": d.page_content})
-        grade = score[0].binary_score
-        if grade == "yes":
+    score = chain.invoke({"question": question, "context": documents, "chat_history": chat_history})
+    print("score: ", score)    
+    if score['text'] == "yes":
             print("---GRADE: DOCUMENT RELEVANT---")
-            filtered_docs.append(d)
-        else:
+            filtered_docs.append(documents)
+    else:
             print("---GRADE: DOCUMENT NOT RELEVANT---")
             search = "Yes"  # Perform web search
-            continue
+            
+
+    print("here 3")
 
     return {
+        "keys": {
             "documents": filtered_docs,
             "question": question,
             "run_web_search": search,
             "chat_history": chat_history,
         }
-def transform_query(inputs):
+    }
+
+
+def transform_query(state):
     """Transform the query to produce a better question."""
     print("---TRANSFORM QUERY---")
-    question = inputs["question"]
-    documents = inputs["documents"]
-    chat_history = inputs["chat_history"]
+    state_dict = state["keys"]
+    question = state_dict["question"]
+    documents = state_dict["documents"]
+    chat_history = state_dict["chat_history"]
 
     # Create a prompt template with format instructions and the query
     prompt = PromptTemplate(
@@ -236,35 +290,44 @@ def transform_query(inputs):
     )
 
     # Grader
-    model = ChatGoogleGenerativeAI(model='gemini-pro', verbose=True, temperature=0,streaming=True)
+    model = ChatGoogleGenerativeAI(
+        model="gemini-pro", verbose=True, temperature=0, streaming=True
+    )
 
     # Prompt
     chain = prompt | model | StrOutputParser()
     better_question = chain.invoke({"question": question})
+    print("better_question: ", better_question)
 
-    return {"documents": documents, "question": better_question, "chat_history": chat_history}
+    return {"keys":{
+        "documents": documents,
+        "question": better_question,
+        "chat_history": chat_history,
+    }}
 
-def googlesearch(inputs):
+
+def googlesearch(state):
     """Web search based on the re-phrased question"""
     print("---WEB SEARCH---")
-    question = inputs["question"]
-    documents = inputs["documents"]
-    chat_history = inputs["chat_history"]
+    state_dict = state["keys"]
+    question = state_dict["question"]
+    documents = state_dict["documents"]
+    chat_history = state_dict["chat_history"]
+    print("here5")
 
     search = GoogleSerperAPIWrapper(serper_api_key=os.environ["SERPAPI_API_KEY"])
     docs = search.run({"query": question})
-    web_results = "\n".join([d["content"] for d in docs])
-    web_results = Document(page_content=web_results)
-    documents.append(web_results)
+    documents = docs
+    print("docs: ", docs)
 
-    return {"documents": documents, "question": question, "chat_history": chat_history}
+    return {"keys":{"documents": documents, "question": question, "chat_history": chat_history}}
 
-def decide_to_generate(inputs):
+
+def decide_to_generate(state):
     """Decide whether to generate an answer or go to web search"""
     print("---DECIDE TO GENERATE---")
-    question = inputs["question"]
-    filtered_documents = inputs["documents"]
-    search = inputs["run_web_search"]
+    state_dict = state["keys"]
+    search = state_dict["run_web_search"]
 
     if search == "Yes":
         # All documents have been filtered check_relevance
@@ -275,4 +338,8 @@ def decide_to_generate(inputs):
         # We have relevant documents, so generate answer
         print("---DECISION: GENERATE---")
         return "generate"
-    pass
+
+
+response = crag(inputs)
+message_history.add_user_message(inputs["keys"]["question"])
+message_history.add_ai_message(response)
