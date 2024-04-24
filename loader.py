@@ -1,19 +1,13 @@
-from langchain_community.document_loaders import WebBaseLoader, UnstructuredURLLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from dotenv import load_dotenv
 from tqdm import tqdm
 from langchain_google_vertexai import VertexAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from langchain_community.vectorstores import Pinecone as PineconeLangChain
-from pinecone import Pinecone
-from bs4 import BeautifulSoup
+# from pinecone import Pinecone
 from unstructured.partition.html import partition_html
-from unstructured.chunking.title import chunk_by_title
 from unstructured.chunking.basic import chunk_elements
 from langchain_core.documents import Document
-import urllib
 import os
-import requests
 import nltk
 nltk.download('averaged_perceptron_tagger')
 
@@ -46,17 +40,13 @@ def extract_internal_links(url):
 def preprocess_document(url, index_name):
     embedding_model = VertexAIEmbeddings(project='arctic-acolyte-414610', model_name='textembedding-gecko@003')
     vectorstore = PineconeVectorStore(index_name=index_name, embedding=embedding_model)
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size = 1000,
-        chunk_overlap  = 100,
-        length_function = len,
-        add_start_index = True)
+    # delete existing contet
+    # delete_response = vectorstore.delete(delete_all=True)
+    # print(delete_response)
     try:
         elements = partition_html(url=url)
         elements = chunk_elements(elements)
-        # elements = text_splitter.split_text(elements)
         print("Element", elements)
-        # print("Elements", elements)
         print("Element: ", elements[0])
         documents = []
         for element in elements:
@@ -72,18 +62,15 @@ def preprocess_document(url, index_name):
         print("Doksh added")
     except Exception as e:
         print(e)
-    # elements = partition_html(url=url)
-    # element_dict = [el.to_dict() for el in elements]
-    # example_output = json.dumps(element_dict, indent=2)
-    # Convert string to an array
-    # arr = ast.literal_eval(example_output)
-    # print(example_output)
-
 
 
 def load_data(url, index):
     internal_links = extract_internal_links(url)
-    # print(internal_links)
+    embedding_model = VertexAIEmbeddings(project='arctic-acolyte-414610', model_name='textembedding-gecko@003')
+    vectorstore = PineconeVectorStore(index_name='langchain-test-index', embedding=embedding_model)
+    # delete existing contet
+    # delete_response = vectorstore.delete(delete_all=True)
+    # print(delete_response)
 
     with tqdm(total=len(internal_links)) as pbar:
         for link in internal_links:

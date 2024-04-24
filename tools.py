@@ -8,8 +8,7 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.embeddings.vertexai import VertexAIEmbeddings
 from langchain_community.tools import YouTubeSearchTool
 from langchain_community.vectorstores import Pinecone
-from langchain_mongodb import MongoDBAtlasVectorSearch
-from CRAG import library_rag
+# from CRAG import library_rag
 
 
 dotenv_path = os.path.join(os.path.dirname(__file__), "..", "..", ".env")
@@ -80,9 +79,9 @@ def news_rag(query: str, chat_history: List[Dict[str, Any]] = []):
     """Useful when you need to answer questions about latest technology, python or generative AI news. You need to input the query
     as a parameter, as well as the chat history as an array."""
     embeddings = VertexAIEmbeddings(project="arctic-acolyte-414610")
-    docsearch = MongoDBAtlasVectorSearch.from_connection_string(os.getenv("MONGODB_CONNECTION_STRING"),
-                                                                "GenAI-DB.Latest-Python-News-Index",
-                                                                embeddings
+    docsearch = Pinecone.from_existing_index(
+        embedding=embeddings,
+        index_name="python-news",
     )
     print("docsearch: ", docsearch)
 
