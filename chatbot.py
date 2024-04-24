@@ -1,5 +1,6 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_community.chat_models import ChatOllama
+from langchain_groq import ChatGroq
 from tools import tools
 from langchain import hub
 
@@ -25,20 +26,21 @@ def chatbot(session_id, user_input):
     gemini_llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0, google_api_key=os.getenv("GOOGLE_API_KEY"))
     # open_source_llm = ChatOllama(model="llama2",verbose=True ,temperature=0)
     # gpt_llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613")
+    groq_llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
 
     uri = os.getenv("MONGODB_CONNECTION_STRING")
     message_history = MongoDBChatMessageHistory(
         connection_string=uri, session_id=session_id, collection_name="Chats"
     )
 
-    # prompt = hub.pull("hwchase17/structured-chat-agent")
+    prompt = hub.pull("hwchase17/structured-chat-agent")
 
     # Can be found at: https://smith.langchain.com/hub/abdelmegeed/chat_agent?organizationId=bcea20b8-f288-5cb3-b935-d73c584ef50f
-    prompt = hub.pull("abdelmegeed/chat_agent")
+    # prompt = hub.pull("abdelmegeed/chat_agent")
     print(f"Prompt: {prompt}")
 
     chat_agent = create_structured_chat_agent(
-        llm=gemini_llm, tools=tools, prompt=prompt
+        llm=groq_llm, tools=tools, prompt=prompt
     )
 
     agent_executor = AgentExecutor.from_agent_and_tools(
@@ -66,4 +68,4 @@ def chatbot(session_id, user_input):
         message_history.add_ai_message(response["output"])
         return response["output"]
     
-# print(chatbot("12893", "Is there anything new about OpenAI's Assistants APIs?"))
+print(chatbot("oj", "What is your name?"))

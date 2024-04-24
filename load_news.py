@@ -1,8 +1,5 @@
-from langchain_community.document_loaders import WebBaseLoader, UnstructuredURLLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from dotenv import load_dotenv
 from tqdm import tqdm
-from langchain_mongodb import MongoDBAtlasVectorSearch
 from langchain_google_vertexai import VertexAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from langchain_community.vectorstores import Pinecone as PineconeLangChain
@@ -14,8 +11,6 @@ from unstructured.chunking.basic import chunk_elements
 from langchain_core.documents import Document
 import urllib
 import os
-from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
 
 
 load_dotenv()
@@ -44,16 +39,9 @@ def extract_internal_links(url):
 
 # https://github.com/langchain-ai/langchainjs/docs/get_started/quickstart/
 def preprocess_document(url, index_name):
-    uri = os.getenv("MONGODB_CONNECTION_STRING")
-    mongo_client = MongoClient(uri, server_api=ServerApi('1'))
-    collection = mongo_client["GenAI-DB"][index_name]
     embedding_model = VertexAIEmbeddings(project='arctic-acolyte-414610', model_name='textembedding-gecko@003')
-    vector_store = MongoDBAtlasVectorSearch(collection,embedding_model)
-    # text_splitter = RecursiveCharacterTextSplitter(
-    #     chunk_size = 1000,
-    #     chunk_overlap  = 100,
-    #     length_function = len,
-    #     add_start_index = True)
+    vectorstore = PineconeVectorStore(index_name=index_name, embedding=embedding_model)
+
     try:
         elements = partition_html(url=url)
         elements = chunk_elements(elements)
@@ -69,7 +57,7 @@ def preprocess_document(url, index_name):
                         'url':metadata["url"],
                         'orig_elements': metadata["orig_elements"]}
             documents.append(Document(page_content=element.text, metadata=metadata))
-            vector_store.add_documents(documents=documents)
+            vectorstore.add_documents(documents=documents)
         print("Doksh added")
     except Exception as e:
         print(e)
@@ -89,7 +77,7 @@ def load_data(url, index):
 print(
     load_data(
         "https://www.infoworld.com",
-        "Latest-Python-News-Index",
+        "python-news",
     )
 )
 

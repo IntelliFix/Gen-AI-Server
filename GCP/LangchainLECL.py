@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from langchain.prompts import ChatPromptTemplate
 from langchain_google_vertexai import ChatVertexAI
+from langchain_groq import ChatGroq
 from langchain.output_parsers import PydanticOutputParser
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain import hub
@@ -33,7 +34,8 @@ def LECLchat(message):
     #     reply only with a JSON object which contains the comment, and the corrected code. The JSON object should have 2 keys only: comment \
     #     and corrected_code. REPLY WITH NOTHING BUT THE JSON OBJECT."),
     # ("user", "{input}") ])
-    model = ChatGoogleGenerativeAI(temperature=0, top_k=40, model='gemini-pro')
+    model = ChatGroq(temperature=0, model_name="llama3-70b-8192")
+    # model = ChatGoogleGenerativeAI(temperature=0, top_k=40, model='gemini-pro')
     # The instruction prompt is identical to the commented prompt above
     prompt = hub.pull("abdelmegeed/code-fixer")
     
