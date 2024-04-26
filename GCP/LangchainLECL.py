@@ -35,7 +35,7 @@ def LECLchat(message):
     #     and corrected_code. REPLY WITH NOTHING BUT THE JSON OBJECT."),
     # ("user", "{input}") ])
     # model = ChatGroq(temperature=0, model_name="llama3-70b-8192")
-    model = ChatGoogleGenerativeAI(temperature=0, top_k=40, model='gemini-pro')
+    model = ChatGoogleGenerativeAI(temperature=0, top_k=40, model='gemini-pro', convert_system_message_to_human=True)
     # The instruction prompt is identical to the commented prompt above
     prompt = hub.pull("abdelmegeed/code-fixer")
     
