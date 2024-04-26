@@ -33,10 +33,10 @@ def chatbot(session_id, user_input):
         connection_string=uri, session_id=session_id, collection_name="Chats"
     )
 
-    prompt = hub.pull("hwchase17/structured-chat-agent")
+    # prompt = hub.pull("hwchase17/structured-chat-agent")
 
     # Can be found at: https://smith.langchain.com/hub/abdelmegeed/chat_agent?organizationId=bcea20b8-f288-5cb3-b935-d73c584ef50f
-    # prompt = hub.pull("abdelmegeed/chat_agent")
+    prompt = hub.pull("abdelmegeed/chat_agent")
     print(f"Prompt: {prompt}")
 
     chat_agent = create_structured_chat_agent(
@@ -67,5 +67,3 @@ def chatbot(session_id, user_input):
     else:
         message_history.add_ai_message(response["output"])
         return response["output"]
-    
-print(chatbot("oj", "What is your name?"))
