@@ -40,7 +40,7 @@ def chatbot(session_id, user_input):
     print(f"Prompt: {prompt}")
 
     chat_agent = create_structured_chat_agent(
-        llm=groq_llm, tools=tools, prompt=prompt
+        llm=gemini_llm, tools=tools, prompt=prompt
     )
 
     agent_executor = AgentExecutor.from_agent_and_tools(
