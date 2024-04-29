@@ -23,7 +23,7 @@ def chatbot(session_id, user_input):
     #                       you should answer it with the best of your knowledge. If the question is anything
     #                       else, you should answer "Sorry, I am a pyhton Assistant only!" """
 
-    gemini_llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0, google_api_key=os.getenv("GOOGLE_API_KEY"), convert_system_message_to_human=true)
+    gemini_llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0, google_api_key=os.getenv("GOOGLE_API_KEY"), convert_system_message_to_human=True)
     # open_source_llm = ChatOllama(model="llama2",verbose=True ,temperature=0)
     # gpt_llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613")
     groq_llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
