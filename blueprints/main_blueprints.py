@@ -44,26 +44,13 @@ async def code_fixer():
 
 
 @blueprints.route(main_bp["chatbot-route"], methods=["POST"])
-# def chat():
-#     try:
-#         request_data = request.get_json()
-
-#         session_id = request_data.get("session_id")
-#         message = request_data.get("message")
-#         print("Chatbot")
-#         response = chatbot(session_id=session_id, user_input=message)
-#         return {"output": response}
-
-#     except Exception as e:
-#         print(e)
-#         return {"exception": str(e)}, 500
 def chat():
     try:
         request_data = request.get_json()
 
         session_id = request_data.get("session_id")
         message = request_data.get("message")
-        print("Chatbot")
+        # print("Chatbot")
         response = crag(session_id=session_id, user_input=message)
         return {"output": response}
 
@@ -86,17 +73,17 @@ def injection():
         print(e)
         return {"exception": str(e)}, 500
 
-@blueprints.route(main_bp["crag-route"], methods=["POST"])
-def chat_crag():
-    try:
-        request_data = request.get_json()
+# @blueprints.route(main_bp["crag-route"], methods=["POST"])
+# def chat_crag():
+#     try:
+#         request_data = request.get_json()
 
-        session_id = request_data.get("session_id")
-        message = request_data.get("message")
-        print("Chatbot")
-        response = crag(session_id=session_id, user_input=message)
-        return {"output": response}
+#         session_id = request_data.get("session_id")
+#         message = request_data.get("message")
+#         print("Chatbot")
+#         response = crag(session_id=session_id, user_input=message)
+#         return {"output": response}
 
-    except Exception as e:
-        print(e)
-        return {"exception": str(e)}, 500
+#     except Exception as e:
+#         print(e)
+#         return {"exception": str(e)}, 500
