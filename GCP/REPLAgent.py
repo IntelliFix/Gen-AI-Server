@@ -28,9 +28,9 @@ def pythonAgent(input_code, comment):
     }
 
     agent_executor = create_python_agent(
-        # llm=ChatVertexAI(**parameters),
+        llm=ChatVertexAI(**parameters),
         # Using Llama3 80B using Groq's inference API
-        llm = ChatGroq(temperature=0, model_name="llama3-70b-8192"),
+        # llm = ChatGroq(temperature=0, model_name="llama3-70b-8192"),
         # Using Llama 7B responded in 23 mins for DFS question (running locally)
         # llm= ChatOllama(model='llama2', temperature=0, top_k=40, top_p=0.8),
         tool=PythonREPLTool(),
