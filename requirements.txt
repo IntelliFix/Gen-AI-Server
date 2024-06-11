@@ -57,7 +57,7 @@ mypy-extensions==1.0.0
 numpy==1.26.1
 openai==0.28.1
 packaging==23.2
-pinecone-client==3.1.0
+pinecone-client==3.2.2
 proto-plus==1.22.3
 protobuf==4.24.4
 pyasn1==0.5.0
