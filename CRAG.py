@@ -219,7 +219,7 @@ def generate(state):
     # Prompt
     prompt_template = """
         Given the following documents {documents} and {chat_history} what is the answer to the following question: {question}.
-        If the provided context is not enough, you can ask the user for more information.
+        If the provided context is not enough, reply with 'I need more information'.
         """
     prompt_template = PromptTemplate(
         input_variables=["documents", "chat_history", "question"],
