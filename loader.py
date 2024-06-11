@@ -23,16 +23,16 @@ def extract_internal_links(url):
     for element in elements:
         if element.metadata.link_urls:
             relative_link = element.metadata.link_urls[0][1:]
-            if relative_link.startswith("docs"):
+            if relative_link.startswith("v0.2/docs"):
                 links.append(f"https://python.langchain.com/{relative_link}")
                 url = "https://python.langchain.com/" + relative_link
                 partitions = partition_html(url=url)
                 for partition in partitions:
                     if partition.metadata.link_urls:
                         relative_link = partition.metadata.link_urls[0][1:]
-                        if relative_link.startswith("docs"):
+                        if relative_link.startswith("v0.2/docs"):
                             links.append(f"https://python.langchain.com/{relative_link}")
-    
+    print(links)
     return links
 
 
@@ -82,10 +82,10 @@ def load_data(url, index):
 
 print(
     load_data(
-        "https://python.langchain.com/docs/get_started/introduction",
+        "https://python.langchain.com/v0.2/docs/introduction/",
         "langchain-test-index",
     )
 )
 # print(load_data("https://python.langchain.com/docs/get_started/introduction","langchain-test-index" ))
-# print(extract_internal_links("https://python.langchain.com/docs/get_started/introduction"))
+# print(extract_internal_links("https://python.langchain.com/v0.2/docs/introduction/"))
 # preprocess_document("https://python.langchain.com/docs/get_started/introduction", "langchain-test-index")
