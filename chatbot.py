@@ -26,7 +26,7 @@ def chatbot(session_id, user_input):
     gemini_llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0, google_api_key=os.getenv("GOOGLE_API_KEY"), convert_system_message_to_human=True)
     # open_source_llm = ChatOllama(model="llama2",verbose=True ,temperature=0)
     # gpt_llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo-0613")
-    groq_llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
+    # groq_llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
 
     uri = os.getenv("MONGODB_CONNECTION_STRING")
     message_history = MongoDBChatMessageHistory(
@@ -50,7 +50,7 @@ def chatbot(session_id, user_input):
         handle_parsing_errors=True,
         return_intermediate_steps=True,
     )
-    adapted_input = {"keys": {"question": user_input}}
+    # adapted_input = {"keys": {"question": user_input}}
 
     print(message_history.messages)
     response = agent_executor.invoke(

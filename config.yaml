@@ -6,3 +6,4 @@ blueprints:
       code-fixer-route: /code-fixer
       chatbot-route: /chatbot
       prompt-injection-route: /prompt-injection
+      crag-route: /crag

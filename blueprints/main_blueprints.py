@@ -6,6 +6,7 @@ from injection import prompt_injection
 from GCP.REPLAgent import pythonAgent
 from langchain.load.dump import dumps
 from chatbot import chatbot
+from CRAG import crag
 import json
 import os
 import asyncio
@@ -43,14 +44,27 @@ async def code_fixer():
 
 
 @blueprints.route(main_bp["chatbot-route"], methods=["POST"])
-def chat():
+# def chat():
+#     try:
+#         request_data = request.get_json()
+
+#         session_id = request_data.get("session_id")
+#         message = request_data.get("message")
+#         print("Chatbot")
+#         response = chatbot(session_id=session_id, user_input=message)
+#         return {"output": response}
+
+#     except Exception as e:
+#         print(e)
+#         return {"exception": str(e)}, 500
+def chat_crag():
     try:
         request_data = request.get_json()
 
         session_id = request_data.get("session_id")
         message = request_data.get("message")
         print("Chatbot")
-        response = chatbot(session_id=session_id, user_input=message)
+        response = crag(session_id=session_id, user_input=message)
         return {"output": response}
 
     except Exception as e:
@@ -67,6 +81,21 @@ def injection():
 
         response = prompt_injection(message)
         return response
+
+    except Exception as e:
+        print(e)
+        return {"exception": str(e)}, 500
+
+@blueprints.route(main_bp["crag-route"], methods=["POST"])
+def chat_crag():
+    try:
+        request_data = request.get_json()
+
+        session_id = request_data.get("session_id")
+        message = request_data.get("message")
+        print("Chatbot")
+        response = crag(session_id=session_id, user_input=message)
+        return {"output": response}
 
     except Exception as e:
         print(e)
