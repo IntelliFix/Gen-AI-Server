@@ -57,7 +57,7 @@ async def code_fixer():
 #     except Exception as e:
 #         print(e)
 #         return {"exception": str(e)}, 500
-def chat_crag():
+def chat():
     try:
         request_data = request.get_json()
 
