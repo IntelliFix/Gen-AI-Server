@@ -39,22 +39,41 @@ import pprint
 from langgraph.graph import END, StateGraph
 from google.cloud import aiplatform
 from langchain.chains import LLMChain
+<<<<<<< HEAD
 
 
 # langchain function will take state as parameter
 dotenv_path = os.path.join(os.path.dirname(__file__), "..", "..", ".env")
+=======
+from langchain_pinecone import PineconeVectorStore
+
+
+
+
+# langchain function will take state as parameter
+# dotenv_path = os.path.join(os.path.dirname(__file__), "..", "..", ".env")
+dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
+>>>>>>> a0f7fcbd08df981af7f4e6e070a30c9984da95dd
 load_dotenv(dotenv_path)
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "arctic-acolyte-414610-c6dcb23dd443.json"
 aiplatform.init(project="arctic-acolyte-414610")
 
 uri = os.getenv("MONGODB_CONNECTION_STRING")
 message_history = MongoDBChatMessageHistory(
+<<<<<<< HEAD
         connection_string=uri, session_id="5", collection_name="Chats"
+=======
+        connection_string=uri, session_id="67", collection_name="Chats"
+>>>>>>> a0f7fcbd08df981af7f4e6e070a30c9984da95dd
     )
 
 inputs = {
     "keys": {
+<<<<<<< HEAD
         "question": "what are different langchain agents?",
+=======
+        "question": "what is my name?",
+>>>>>>> a0f7fcbd08df981af7f4e6e070a30c9984da95dd
         "chat_history": message_history.messages
     }
 }
@@ -116,11 +135,19 @@ def retriever(state):
     """Retrieve documents from vector store"""
     embeddings = VertexAIEmbeddings(project="arctic-acolyte-414610")
 
+<<<<<<< HEAD
     docsearch = Pinecone.from_existing_index(
         embedding=embeddings,
         index_name="langchain-test-index",
     )
     print("docsearch: ", docsearch)
+=======
+    docsearch = PineconeVectorStore.from_existing_index(
+        embedding=embeddings,
+        index_name="langchain-test-index",
+    )
+    # print("docsearch: ", docsearch)
+>>>>>>> a0f7fcbd08df981af7f4e6e070a30c9984da95dd
 
     parameters = {
         "candidate_count": 1,
@@ -144,8 +171,13 @@ def retriever(state):
     question = state_dict["question"]
     chat_history = state_dict["chat_history"]
     response = qa({"question": question, "chat_history": chat_history})
+<<<<<<< HEAD
     print("hereee")
     print("documents: ",response["answer"])
+=======
+    print("retreiver debugging 1")
+    print("documents retrieved: ",response["answer"])
+>>>>>>> a0f7fcbd08df981af7f4e6e070a30c9984da95dd
     return {
         "keys": {
             "documents": response["answer"],
@@ -170,12 +202,21 @@ def generate(state):
     # Prompt
     #removed hwar el history ashan el attention.
     prompt_template = """
+<<<<<<< HEAD
         Given the following documents {documents} what is the answer to the following question: {question}
+=======
+        Given the following documents {documents} and {chat_history} what is the answer to the following question: {question}
+        If it is a greeting, reply to it!
+>>>>>>> a0f7fcbd08df981af7f4e6e070a30c9984da95dd
         """
     prompt_template = PromptTemplate(
         input_variables=["documents", "chat_history", "question"],
         template=prompt_template,
     )
+    # prompt_template = PromptTemplate(
+    #     input_variables=["documents","question"],
+    #     template=prompt_template,
+    # )
 
     # LLM
     llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
@@ -208,6 +249,10 @@ def grading_documents(state):
     state_dict = state["keys"]
     question = state_dict["question"]
     documents = state_dict["documents"]
+<<<<<<< HEAD
+=======
+    print("documents:", documents)
+>>>>>>> a0f7fcbd08df981af7f4e6e070a30c9984da95dd
     chat_history = state_dict["chat_history"]
 
     # LLM
@@ -229,11 +274,15 @@ def grading_documents(state):
 
     # Prompt
     prompt = PromptTemplate(
-        template="""You are a grader assessing relevance of a retrieved document to a user question. \n 
+        template="""You are a grader assessing relevance of a retrieved document and chat history to a user question. \n 
         Here is the retrieved document: \n\n {context} \n\n
         Here is the user question: {question} \n
         Here is the chat history: {chat_history} \n
+<<<<<<< HEAD
         If the document contains keyword(s) or semantic meaning related to the user question, grade it as relevant.
+=======
+        If the document/chat history contains keyword(s) or semantic meaning related to the user question, grade it as relevant.
+>>>>>>> a0f7fcbd08df981af7f4e6e070a30c9984da95dd
         If it has ZERO relevence then grade it as irrelevant.  \n
         Give a binary score 'yes' or 'no' score to indicate whether the document is relevant to the question.""",
         input_variables=["context", "question", "chat_history"],
@@ -285,7 +334,7 @@ def transform_query(state):
         \n ------- \n
         {question} 
         \n ------- \n
-        Formulate an improved question: """,
+        Formulate an improved question with no punctuation or grammar mistakes: """,
         input_variables=["question"],
     )
 
@@ -316,7 +365,11 @@ def googlesearch(state):
     print("here5")
 
     search = GoogleSerperAPIWrapper(serper_api_key=os.environ["SERPAPI_API_KEY"])
+<<<<<<< HEAD
     docs = search.run({"query": question})
+=======
+    docs = search.run({question})
+>>>>>>> a0f7fcbd08df981af7f4e6e070a30c9984da95dd
     documents = docs
     print("docs: ", docs)
 

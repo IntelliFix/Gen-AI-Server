@@ -50,15 +50,12 @@ def chatbot(session_id, user_input):
         handle_parsing_errors=True,
         return_intermediate_steps=True,
     )
-    adapted_input = {
-        "keys": {
-            "question": user_input
-        }
-    }
+    adapted_input = {"keys": {"question": user_input}}
 
     print(message_history.messages)
     response = agent_executor.invoke(
-        {"input": adapted_input, "chat_history": message_history.messages}
+        # {"input": adapted_input, "chat_history": message_history.messages}
+        {"input": input, "chat_history": message_history.messages}
     )
     message_history.add_user_message(user_input)
     if "text" in response["output"]:
