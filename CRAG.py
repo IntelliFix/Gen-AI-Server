@@ -29,18 +29,6 @@ load_dotenv(dotenv_path)
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "arctic-acolyte-414610-c6dcb23dd443.json"
 aiplatform.init(project="arctic-acolyte-414610")
 
-# uri = os.getenv("MONGODB_CONNECTION_STRING")
-# message_history = MongoDBChatMessageHistory(
-#     connection_string=uri, session_id="47", collection_name="Chats"
-# )
-
-# inputs = {
-#     "keys": {
-#         "question": "how can i import a function in python?",
-#         "chat_history": message_history.messages,
-#     }
-# }
-
 
 def crag(session_id,user_input):
     """Useful when you need to answer questions regarding anything or everything about langchain python library. You need to input the query
