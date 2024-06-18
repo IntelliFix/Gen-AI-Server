@@ -21,9 +21,10 @@ from langgraph.graph import END, StateGraph
 from google.cloud import aiplatform
 from langchain.chains import LLMChain
 from langchain_pinecone import PineconeVectorStore
+# Memory
+from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
+from langchain.chains import ConversationChain
 
-
-# Load environment variables
 dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
 load_dotenv(dotenv_path)
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "arctic-acolyte-414610-c6dcb23dd443.json"
@@ -33,15 +34,29 @@ aiplatform.init(project="arctic-acolyte-414610")
 def crag(session_id,user_input):
     """Useful when you need to answer questions regarding anything or everything about langchain python library. You need to input the query
     as a parameter, as well as the chat history as an array."""
+    
     uri = os.getenv("MONGODB_CONNECTION_STRING")
     message_history = MongoDBChatMessageHistory(
     connection_string=uri, session_id=session_id, collection_name="Chats"
 )
+    print("message_history: ", message_history)
+    llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
+    template = """The following is a friendly conversation, summarize all the conversation 
+    to the most recent conversations.The conversation will be given in the form Human and AI messages.
+    If no memory is provided respond with " ".
+    Current conversation: {message_history}
+    """
+    prompt = PromptTemplate(input_variables=["message_history"], template=template)
+    chain = prompt | llm | StrOutputParser()
+    summary = chain.invoke({"message_history": message_history})
+    print("summary: ", summary)
+    # memory = ConversationSummaryBufferMemory(llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0), max_token_limit=40) 
     inputs = {
     "keys": {
         "question": user_input,
         "chat_history": message_history.messages,
         "session_id": session_id,
+        "summary_memory": summary,
     }
 }
     workflow = StateGraph(GraphState)
@@ -108,22 +123,28 @@ def classify_question(state):
     print("---CLASSIFY QUESTION---")
     state_dict = state["keys"]
     question = state_dict["question"]
+    summary_memory = state_dict["summary_memory"]
     print("question: ", question)
 
     # Create a prompt template for classification
     prompt = PromptTemplate(
         template="""Classify the following question as 'programming' or 'general':
         Question: {question}
+        If the input question refers to a previous question or conversation, 
+        Use the provided memory history summary to help in the classification.
+        memory: {summary_memory}
+        
         """,
-        input_variables=["question"],
+        input_variables=["question", "summary_memory"],
     )
+    
 
     # LLM
     llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
 
     # Chain
     classification_chain = prompt | llm | StrOutputParser()
-    classification = classification_chain.invoke({"question": question}).strip().lower()
+    classification = classification_chain.invoke({"question": question,"summary_memory":summary_memory}).strip().lower()
 
     return {
         "keys": {
@@ -131,6 +152,7 @@ def classify_question(state):
             "classification": classification,
             "chat_history": state_dict["chat_history"],
             "session_id": state_dict["session_id"],
+            "summary_memory": summary_memory
         }
     }
 
@@ -187,6 +209,7 @@ def retriever(state):
             "question": question,
             "chat_history": chat_history,
             "session_id": state_dict["session_id"],
+            "summary_memory": state_dict["summary_memory"]
         }
     }
 
@@ -199,34 +222,39 @@ def generate(state):
     documents = state_dict["documents"]
     chat_history = state_dict["chat_history"]
     session_id = state_dict["session_id"]
+    summary_memory = state_dict["summary_memory"]
 
     print("question: ", question)
     print("documents: ", documents)
-    print("chat_history: ", chat_history)
+    print("chat_history: ", summary_memory)
 
     # Prompt
-    prompt_template = """
+    template = """
         Given the following documents {documents} and {chat_history} what is the answer to the following question: {question}.
-        If the provided context is not enough, reply with 'I need more information'.
+        If the provided context is not enough, reply with 'I don't have the information'.
         """
     prompt_template = PromptTemplate(
         input_variables=["documents", "chat_history", "question"],
-        template=prompt_template,
+        template=template,
     )
 
     # LLM
     llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
-
-    # Post-processing
-    # def format_docs(docs):
-    #     return "\n\n".join(doc.page_content for doc in docs)
-
+#     conversation_with_summary = ConversationChain(
+#     llm=llm, 
+#     memory=summary_memory, 
+#     verbose=True,
+#     prompt=prompt_template
+# )
+#     generation = conversation_with_summary.invoke(input = { "documents": documents, "chat_history": summary_memory, "question": question}
+#         )
+    
     # Chain
     rag_chain = prompt_template | llm | StrOutputParser()
 
     # Run
     generation = rag_chain.invoke(
-        {"documents": documents, "chat_history": chat_history, "question": question}
+         {"documents": documents, "chat_history": summary_memory, "question": question}
     )
     uri = os.getenv("MONGODB_CONNECTION_STRING")
     message_history = MongoDBChatMessageHistory(
@@ -242,6 +270,7 @@ def generate(state):
             "chat_history": chat_history,
             "session_id": session_id,
             "generation": generation,
+            "summary_memory": summary_memory
         }
     }
 
@@ -254,6 +283,7 @@ def grading_documents(state):
     documents = state_dict["documents"]
     print("documents:", documents)
     chat_history = state_dict["chat_history"]
+    summary_memory = state_dict["summary_memory"]
 
     # LLM
     model = ChatGoogleGenerativeAI(
@@ -277,7 +307,7 @@ def grading_documents(state):
     filtered_docs = []
     search = "No"  # Default do not opt for web search to supplement retrieval
     score = chain.invoke(
-        {"question": question, "context": documents, "chat_history": chat_history}
+        {"question": question, "context": documents, "chat_history": summary_memory}
     )
     print("score: ", score)
     if score["text"] == "yes":
@@ -296,6 +326,7 @@ def grading_documents(state):
             "run_web_search": search,
             "session_id": state_dict["session_id"],
             "chat_history": chat_history,
+            "summary_memory": summary_memory,
         }
     }
 
@@ -307,6 +338,7 @@ def transform_query(state):
     question = state_dict["question"]
     documents = state_dict["documents"]
     chat_history = state_dict["chat_history"]
+    summary_memory = state_dict["summary_memory"]
 
     # Create a prompt template with format instructions and the query
     prompt = PromptTemplate(
@@ -316,8 +348,12 @@ def transform_query(state):
         \n ------- \n
         {question} 
         \n ------- \n
+        Use the chat summary memory to make any inferences and produce a better question.
+        \n ------- \n
+        Here is the chat history: {chat_history}
+        \n ------- \n
         Formulate an improved question with no punctuation or grammar mistakes: """,
-        input_variables=["question"],
+        input_variables=["question", "chat_history"],
     )
 
     # Grader
@@ -326,7 +362,7 @@ def transform_query(state):
     )
 
     chain = prompt | model | StrOutputParser()
-    better_question = chain.invoke({"question": question})
+    better_question = chain.invoke({"question": question, "chat_history": summary_memory})
     print("better_question: ", better_question)
 
     return {
@@ -335,6 +371,7 @@ def transform_query(state):
             "question": better_question,
             "session_id": state_dict["session_id"],
             "chat_history": chat_history,
+            "summary_memory": summary_memory,
         }
     }
 
@@ -346,6 +383,7 @@ def googlesearch(state):
     question = state_dict["question"]
     documents = state_dict["documents"]
     chat_history = state_dict["chat_history"]
+    summary_memory = state_dict["summary_memory"]
 
     search = GoogleSerperAPIWrapper(serper_api_key=os.environ["SERPAPI_API_KEY"])
     docs = search.run({question})
@@ -358,6 +396,7 @@ def googlesearch(state):
             "question": question,
             "chat_history": chat_history,
             "session_id": state_dict["session_id"],
+            "summary_memory": summary_memory,
         }
     }
 
@@ -386,6 +425,7 @@ def handle_general(state):
     question = state_dict["question"]
     chat_history = state_dict["chat_history"]
     session_id = state_dict["session_id"]
+    summary_memory = state_dict["summary_memory"]
 
     # Prompt
     prompt_template = """
@@ -408,30 +448,39 @@ def handle_general(state):
 
     # LLM
     llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
+    conversation_with_summary = ConversationChain(
+    llm=llm, 
+    memory=summary_memory, 
+    verbose=True,
+    prompt=prompt
+    )
+    generation = conversation_with_summary.predict(question=question, chat_history=summary_memory)
 
     # Chain
-    general_chain = prompt | llm | StrOutputParser()
+    # general_chain = prompt | llm | StrOutputParser()
 
     # Run
-    response = general_chain.invoke(
-        {"question": question, "chat_history": chat_history}
-    )
+    # response = general_chain.invoke(
+    #     {"question": question, "chat_history": chat_history}
+    # )
     uri = os.getenv("MONGODB_CONNECTION_STRING")
     message_history = MongoDBChatMessageHistory(
     connection_string=uri, session_id=session_id, collection_name="Chats"
     )
     message_history.add_user_message(question)
-    message_history.add_ai_message(response)
+    message_history.add_ai_message(generation)
 
     return {
         "keys": {
             "question": question,
             "chat_history": chat_history,
-            "generation": response,
+            "generation": generation,
             "session_id": state_dict["session_id"],
         }
     }
 
 
-# crag("996","what is lcel in lnagchain python?")
-
+crag("9862","what is lcel in langchain python?")
+crag("9862","Explain python variables with examples")
+crag("9862","does python have a library for highlighting code blocks?")
+crag("9862","can you provide a code example?")
