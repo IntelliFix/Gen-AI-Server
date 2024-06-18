@@ -448,21 +448,21 @@ def handle_general(state):
 
     # LLM
     llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
-    conversation_with_summary = ConversationChain(
-    llm=llm, 
-    memory=summary_memory, 
-    verbose=True,
-    prompt=prompt
-    )
-    generation = conversation_with_summary.predict(question=question, chat_history=summary_memory)
+    # conversation_with_summary = ConversationChain(
+    # llm=llm, 
+    # memory=summary_memory, 
+    # verbose=True,
+    # prompt=prompt
+    # )
+    # generation = conversation_with_summary.predict(question=question, chat_history=summary_memory)
 
     # Chain
-    # general_chain = prompt | llm | StrOutputParser()
+    general_chain = prompt | llm | StrOutputParser()
 
     # Run
-    # response = general_chain.invoke(
-    #     {"question": question, "chat_history": chat_history}
-    # )
+    generation = general_chain.invoke(
+        {"question": question, "chat_history": summary_memory}
+    )
     uri = os.getenv("MONGODB_CONNECTION_STRING")
     message_history = MongoDBChatMessageHistory(
     connection_string=uri, session_id=session_id, collection_name="Chats"
