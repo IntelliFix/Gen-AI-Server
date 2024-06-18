@@ -50,7 +50,6 @@ def crag(session_id,user_input):
     chain = prompt | llm | StrOutputParser()
     summary = chain.invoke({"message_history": message_history})
     print("summary: ", summary)
-    # memory = ConversationSummaryBufferMemory(llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0), max_token_limit=40) 
     inputs = {
     "keys": {
         "question": user_input,
@@ -138,7 +137,6 @@ def classify_question(state):
         input_variables=["question", "summary_memory"],
     )
     
-
     # LLM
     llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
 
@@ -224,10 +222,6 @@ def generate(state):
     session_id = state_dict["session_id"]
     summary_memory = state_dict["summary_memory"]
 
-    print("question: ", question)
-    print("documents: ", documents)
-    print("chat_history: ", summary_memory)
-
     # Prompt
     template = """
         Given the following documents {documents} and {chat_history} what is the answer to the following question: {question}.
@@ -240,15 +234,7 @@ def generate(state):
 
     # LLM
     llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
-#     conversation_with_summary = ConversationChain(
-#     llm=llm, 
-#     memory=summary_memory, 
-#     verbose=True,
-#     prompt=prompt_template
-# )
-#     generation = conversation_with_summary.invoke(input = { "documents": documents, "chat_history": summary_memory, "question": question}
-#         )
-    
+
     # Chain
     rag_chain = prompt_template | llm | StrOutputParser()
 
@@ -303,7 +289,6 @@ def grading_documents(state):
     )
     chain = LLMChain(llm=model, prompt=prompt)
 
-    print("here relevance")
     filtered_docs = []
     search = "No"  # Default do not opt for web search to supplement retrieval
     score = chain.invoke(
@@ -316,8 +301,6 @@ def grading_documents(state):
     else:
         print("---GRADE: DOCUMENT NOT RELEVANT---")
         search = "Yes"  # Perform web search
-
-    print("here 3")
 
     return {
         "keys": {
@@ -388,8 +371,6 @@ def googlesearch(state):
     search = GoogleSerperAPIWrapper(serper_api_key=os.environ["SERPAPI_API_KEY"])
     docs = search.run({question})
     documents = docs
-    print("docs: ", docs)
-
     return {
         "keys": {
             "documents": documents,
@@ -448,14 +429,7 @@ def handle_general(state):
 
     # LLM
     llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
-    # conversation_with_summary = ConversationChain(
-    # llm=llm, 
-    # memory=summary_memory, 
-    # verbose=True,
-    # prompt=prompt
-    # )
-    # generation = conversation_with_summary.predict(question=question, chat_history=summary_memory)
-
+   
     # Chain
     general_chain = prompt | llm | StrOutputParser()
 
