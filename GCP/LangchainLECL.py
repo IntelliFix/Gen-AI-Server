@@ -28,15 +28,8 @@ class OutputResponse(BaseModel):
 def LECLchat(message):
     parser = PydanticOutputParser(pydantic_object=OutputResponse)
     # model = ChatVertexAI(temperature=0,top_k=40,model_name='chat-bison')
-    # prompt = ChatPromptTemplate.from_messages([
-    # ("system", "You are a python code fixer, and I am going to send you an agent executor chain, which contains \
-    #     corrected python code, and comments about what was wrong in the code. I need you to extract this information from the message and \
-    #     reply only with a JSON object which contains the comment, and the corrected code. The JSON object should have 2 keys only: comment \
-    #     and corrected_code. REPLY WITH NOTHING BUT THE JSON OBJECT."),
-    # ("user", "{input}") ])
-    # model = ChatGroq(temperature=0, model_name="llama3-70b-8192")
-    model = ChatGoogleGenerativeAI(temperature=0, top_k=40, model='gemini-pro', convert_system_message_to_human=True)
-    # The instruction prompt is identical to the commented prompt above
+    model = ChatGroq(temperature=0, model_name="llama3-70b-8192")
+    # model = ChatGoogleGenerativeAI(temperature=0, top_k=40, model='gemini-pro', convert_system_message_to_human=True)
     prompt = hub.pull("abdelmegeed/code-fixer")
     
     try:
