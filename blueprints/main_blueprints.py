@@ -4,6 +4,7 @@ from yaml_loader import blueprint_yaml
 from GCP.JSONParser import standardOutputParser
 from injection import prompt_injection
 from GCP.REPLAgent import pythonAgent
+from GCP.CodeClassifier import classify_code
 from langchain.load.dump import dumps
 from chatbot import chatbot
 from CRAG import crag
@@ -34,7 +35,9 @@ async def code_fixer():
 
         code = request_data.get("code")
         comment = request_data.get("comment")
-
+        code_classification = classify_code(code)
+        if code_classification != 'python':
+            return {"corrected_code":"","comment":"I'm sorry :( , but I can only help you with python code." }
         llm_response = pythonAgent(code, comment)
 
         return llm_response
