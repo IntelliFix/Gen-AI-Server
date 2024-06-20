@@ -140,8 +140,8 @@ def classify_question(state):
     )
     
     # LLM
-    # llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
-    llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
+    llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
+    # llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
 
     # Chain
     classification_chain = prompt | llm | StrOutputParser()
