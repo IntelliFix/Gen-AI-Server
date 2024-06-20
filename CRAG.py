@@ -417,7 +417,8 @@ def handle_general(state):
     # Prompt
     prompt_template = """
         You are a python general assistant and your name is Pyerre.
-        If the user asks about anything malicious, harmful or vile, do not help him, otherwise respond normally, 
+        If the user asks about anything malicious, harmful or vile, do not help him. If the question is not Python or Programming
+        related, don't answer too! Only answer to Python or programming related questions. 
         if the context is python or programming related, or the user is just greeting you. Try to be as friendly 
         and helpful to the user as much as possible. You have access to tools that can help you answer questions 
         related to different python frameworks and libraries, 
