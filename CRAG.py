@@ -478,7 +478,7 @@ def handle_general(state):
     }
 
 
-crag("45219","what is lcel in langchain python?")
+# crag("45219","what is lcel in langchain python?")
 # crag("9862","Explain python variables with examples")
 # crag("9862","does python have a library for highlighting code blocks?")
 # crag("9862","can you provide a code example?")
