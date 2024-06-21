@@ -41,11 +41,11 @@ def crag(session_id,user_input):
     connection_string=uri, session_id=session_id, collection_name="Chats"
 )
     print("message_history: ", message_history)
-    # llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
-    llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
+    llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
+    # llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
     template = """The following is a friendly conversation, summarize all the conversation 
     to the most recent conversations.The conversation will be given in the form Human and AI messages.
-    If no memory is provided respond with " ".
+    If no conversation is provided respond with " ".
     Current conversation: {message_history}
     """
     prompt = PromptTemplate(input_variables=["message_history"], template=template)
@@ -131,10 +131,11 @@ def classify_question(state):
     prompt = PromptTemplate(
         template="""Classify the following question as 'programming' or 'general':
         Question: {question}
-        If the input question refers to a previous question or conversation, 
         Use the provided memory history summary to help in the classification.
         memory: {summary_memory}
-        
+        sometimes the user question refers to an old question like giving extra examples of
+        a previously mentioned subject, this is were the summary memory will
+        assist you in classifying the question correctly. 
         """,
         input_variables=["question", "summary_memory"],
     )
@@ -328,6 +329,8 @@ def transform_query(state):
     chat_history = state_dict["chat_history"]
     summary_memory = state_dict["summary_memory"]
 
+    print("summary_memory",summary_memory)
+
     # Create a prompt template with format instructions and the query
     prompt = PromptTemplate(
         template="""You are generating questions that is well optimized for retrieval. \n 
@@ -377,6 +380,7 @@ def googlesearch(state):
     search = GoogleSerperAPIWrapper(serper_api_key=os.environ["SERPAPI_API_KEY"])
     docs = search.run({question})
     documents = docs
+    print("docs", docs)
     return {
         "keys": {
             "documents": documents,
@@ -417,8 +421,7 @@ def handle_general(state):
     # Prompt
     prompt_template = """
         You are a python general assistant and your name is Pyerre.
-        If the user asks about anything malicious, harmful or vile, do not help him. If the question is not Python or Programming
-        related, don't answer too! Only answer to Python or programming related questions. 
+        If the user asks about anything malicious, harmful or vile, do not help him.
         if the context is python or programming related, or the user is just greeting you. Try to be as friendly 
         and helpful to the user as much as possible. You have access to tools that can help you answer questions 
         related to different python frameworks and libraries, 
