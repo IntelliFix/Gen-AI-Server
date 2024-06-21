@@ -24,8 +24,6 @@ from langchain_pinecone import PineconeVectorStore
 # Memory
 from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
 from langchain.chains import ConversationChain
-from langchain_groq import ChatGroq
-# from langchain_google_vertexai.model_garden import ChatAnthropicVertex
 
 dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
 load_dotenv(dotenv_path)
@@ -43,12 +41,9 @@ def crag(session_id,user_input):
 )
     print("message_history: ", message_history)
     llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
-    # llm = ChatVertexAI(model_name='gemini-1.5-pro', temperature=0)
-    # llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
-    # llm = ChatAnthropicVertex(model='claude-3-5-sonnet@20240620', temperature=0, location='us-east5')
     template = """The following is a friendly conversation, summarize all the conversation 
     to the most recent conversations.The conversation will be given in the form Human and AI messages.
-    If no conversation is provided respond with " ".
+    If no memory is provided respond with " ".
     Current conversation: {message_history}
     """
     prompt = PromptTemplate(input_variables=["message_history"], template=template)
@@ -134,20 +129,16 @@ def classify_question(state):
     prompt = PromptTemplate(
         template="""Classify the following question as 'programming' or 'general':
         Question: {question}
+        If the input question refers to a previous question or conversation, 
         Use the provided memory history summary to help in the classification.
         memory: {summary_memory}
-        sometimes the user question refers to an old question like giving extra examples of
-        a previously mentioned subject, this is were the summary memory will
-        assist you in classifying the question correctly. 
+        
         """,
         input_variables=["question", "summary_memory"],
     )
     
     # LLM
     llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
-    # llm = ChatVertexAI(model_name='gemini-1.5-pro', temperature=0)
-    # llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
-    # llm = ChatAnthropicVertex(model='claude-3-5-sonnet@20240620', temperature=0, location='us-east5')
 
     # Chain
     classification_chain = prompt | llm | StrOutputParser()
@@ -243,9 +234,6 @@ def generate(state):
 
     # LLM
     llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
-    # llm = ChatVertexAI(model_name='gemini-1.5-pro', temperature=0)
-    # llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
-    # llm = ChatAnthropicVertex(model='claude-3-5-sonnet@20240620', temperature=0, location='us-east5')
 
     # Chain
     rag_chain = prompt_template | llm | StrOutputParser()
@@ -287,9 +275,6 @@ def grading_documents(state):
     model = ChatGoogleGenerativeAI(
         model="gemini-pro", verbose=True, temperature=0, streaming=True
     )
-    # model = ChatGroq(temperature=0, model_name="llama3-70b-8192")
-    # model = ChatVertexAI(model_name='gemini-1.5-pro', temperature=0)
-    # model = ChatAnthropicVertex(model='claude-3-5-sonnet@20240620', temperature=0, location='us-east5')
 
     # Prompt
     prompt = PromptTemplate(
@@ -338,8 +323,6 @@ def transform_query(state):
     chat_history = state_dict["chat_history"]
     summary_memory = state_dict["summary_memory"]
 
-    print("summary_memory",summary_memory)
-
     # Create a prompt template with format instructions and the query
     prompt = PromptTemplate(
         template="""You are generating questions that is well optimized for retrieval. \n 
@@ -360,9 +343,6 @@ def transform_query(state):
     model = ChatGoogleGenerativeAI(
         model="gemini-pro", verbose=True, temperature=0, streaming=True
     )
-    # model = ChatGroq(temperature=0, model_name="llama3-70b-8192")
-    # model = ChatVertexAI(model_name='gemini-1.5-pro', temperature=0)
-    # model = ChatAnthropicVertex(model='claude-3-5-sonnet@20240620', temperature=0, location='us-east5')
 
     chain = prompt | model | StrOutputParser()
     better_question = chain.invoke({"question": question, "chat_history": summary_memory})
@@ -391,7 +371,6 @@ def googlesearch(state):
     search = GoogleSerperAPIWrapper(serper_api_key=os.environ["SERPAPI_API_KEY"])
     docs = search.run({question})
     documents = docs
-    print("docs", docs)
     return {
         "keys": {
             "documents": documents,
@@ -432,7 +411,7 @@ def handle_general(state):
     # Prompt
     prompt_template = """
         You are a python general assistant and your name is Pyerre.
-        If the user asks about anything malicious, harmful or vile, do not help him.
+        If the user asks about anything malicious, harmful or vile, do not help him, otherwise respond normally, 
         if the context is python or programming related, or the user is just greeting you. Try to be as friendly 
         and helpful to the user as much as possible. You have access to tools that can help you answer questions 
         related to different python frameworks and libraries, 
@@ -450,9 +429,6 @@ def handle_general(state):
 
     # LLM
     llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
-    # llm = ChatVertexAI(model_name='gemini-1.5-pro', temperature=0)
-    # llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
-    # llm = ChatAnthropicVertex(model='claude-3-5-sonnet@20240620', temperature=0, location='us-east5')
    
     # Chain
     general_chain = prompt | llm | StrOutputParser()
@@ -478,7 +454,7 @@ def handle_general(state):
     }
 
 
-# crag("45219","what is lcel in langchain python?")
+# crag("9862","what is lcel in langchain python?")
 # crag("9862","Explain python variables with examples")
 # crag("9862","does python have a library for highlighting code blocks?")
 # crag("9862","can you provide a code example?")
