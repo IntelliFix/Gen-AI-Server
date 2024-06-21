@@ -42,7 +42,8 @@ def crag(session_id,user_input):
 )
     print("message_history: ", message_history)
     # llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
-    llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
+    llm = ChatVertexAI(model_name='claude-3-5-sonnet@20240620', temperature=0)
+    # llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
     template = """The following is a friendly conversation, summarize all the conversation 
     to the most recent conversations.The conversation will be given in the form Human and AI messages.
     If no memory is provided respond with " ".
@@ -140,7 +141,8 @@ def classify_question(state):
     )
     
     # LLM
-    llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
+    # llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
+    llm = ChatVertexAI(model_name='claude-3-5-sonnet@20240620', temperature=0)
     # llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
 
     # Chain
@@ -237,7 +239,8 @@ def generate(state):
 
     # LLM
     # llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
-    llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
+    llm = ChatVertexAI(model_name='claude-3-5-sonnet@20240620', temperature=0)
+    # llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
 
     # Chain
     rag_chain = prompt_template | llm | StrOutputParser()
@@ -279,7 +282,8 @@ def grading_documents(state):
     # model = ChatGoogleGenerativeAI(
     #     model="gemini-pro", verbose=True, temperature=0, streaming=True
     # )
-    model = ChatGroq(temperature=0, model_name="llama3-70b-8192")
+    # model = ChatGroq(temperature=0, model_name="llama3-70b-8192")
+    model = ChatVertexAI(model_name='claude-3-5-sonnet@20240620', temperature=0)
 
     # Prompt
     prompt = PromptTemplate(
@@ -348,7 +352,8 @@ def transform_query(state):
     # model = ChatGoogleGenerativeAI(
     #     model="gemini-pro", verbose=True, temperature=0, streaming=True
     # )
-    model = ChatGroq(temperature=0, model_name="llama3-70b-8192")
+    # model = ChatGroq(temperature=0, model_name="llama3-70b-8192")
+    model = ChatVertexAI(model_name='claude-3-5-sonnet@20240620', temperature=0)
 
     chain = prompt | model | StrOutputParser()
     better_question = chain.invoke({"question": question, "chat_history": summary_memory})
@@ -435,7 +440,8 @@ def handle_general(state):
 
     # LLM
     # llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
-    llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
+    llm = ChatVertexAI(model_name='claude-3-5-sonnet@20240620', temperature=0)
+    # llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
    
     # Chain
     general_chain = prompt | llm | StrOutputParser()
@@ -461,7 +467,7 @@ def handle_general(state):
     }
 
 
-# crag("9862","what is lcel in langchain python?")
+crag("45219","what is lcel in langchain python?")
 # crag("9862","Explain python variables with examples")
 # crag("9862","does python have a library for highlighting code blocks?")
 # crag("9862","can you provide a code example?")
