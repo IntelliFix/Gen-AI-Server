@@ -25,7 +25,7 @@ from langchain_pinecone import PineconeVectorStore
 from langchain.chains.conversation.memory import ConversationSummaryBufferMemory
 from langchain.chains import ConversationChain
 from langchain_groq import ChatGroq
-from langchain_google_vertexai.model_garden import ChatAnthropicVertex
+# from langchain_google_vertexai.model_garden import ChatAnthropicVertex
 
 dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
 load_dotenv(dotenv_path)
