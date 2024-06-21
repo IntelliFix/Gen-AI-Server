@@ -236,8 +236,8 @@ def generate(state):
     )
 
     # LLM
-    # llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
-    llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
+    llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
+    # llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
 
     # Chain
     rag_chain = prompt_template | llm | StrOutputParser()
@@ -276,10 +276,10 @@ def grading_documents(state):
     summary_memory = state_dict["summary_memory"]
 
     # LLM
-    # model = ChatGoogleGenerativeAI(
-    #     model="gemini-pro", verbose=True, temperature=0, streaming=True
-    # )
-    model = ChatGroq(temperature=0, model_name="llama3-70b-8192")
+    model = ChatGoogleGenerativeAI(
+        model="gemini-pro", verbose=True, temperature=0, streaming=True
+    )
+    # model = ChatGroq(temperature=0, model_name="llama3-70b-8192")
 
     # Prompt
     prompt = PromptTemplate(
@@ -345,10 +345,10 @@ def transform_query(state):
     )
 
     # Grader
-    # model = ChatGoogleGenerativeAI(
-    #     model="gemini-pro", verbose=True, temperature=0, streaming=True
-    # )
-    model = ChatGroq(temperature=0, model_name="llama3-70b-8192")
+    model = ChatGoogleGenerativeAI(
+        model="gemini-pro", verbose=True, temperature=0, streaming=True
+    )
+    # model = ChatGroq(temperature=0, model_name="llama3-70b-8192")
 
     chain = prompt | model | StrOutputParser()
     better_question = chain.invoke({"question": question, "chat_history": summary_memory})
@@ -435,8 +435,8 @@ def handle_general(state):
     )
 
     # LLM
-    # llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
-    llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
+    llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
+    # llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
    
     # Chain
     general_chain = prompt | llm | StrOutputParser()
