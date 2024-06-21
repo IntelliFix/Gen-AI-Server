@@ -4,7 +4,7 @@ from langchain_experimental.tools import PythonREPLTool
 from langchain_community.chat_models import ChatOllama
 from langchain_groq import ChatGroq
 # from langchain.tools import PythonAstREPLTool
-from langchain_community.utilities import PythonREPL
+from langchain_experimental.utilities.python import PythonREPL
 from langchain_community.llms import vertexai
 from langchain.agents.agent_types import AgentType
 from langchain_community.chat_models import ChatVertexAI
