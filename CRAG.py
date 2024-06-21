@@ -131,6 +131,8 @@ def classify_question(state):
         Question: {question}
         If the input question refers to a previous question or conversation, 
         Use the provided memory history summary to help in the classification.
+        Reply with one word only either, programming or general.
+        DO NOT REPLY WITH ANYTHING ELSE.
         memory: {summary_memory}
         
         """,
