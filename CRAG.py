@@ -42,10 +42,10 @@ def crag(session_id,user_input):
     connection_string=uri, session_id=session_id, collection_name="Chats"
 )
     print("message_history: ", message_history)
-    # llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
+    llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
     # llm = ChatVertexAI(model_name='gemini-1.5-pro', temperature=0)
     # llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
-    llm = ChatAnthropicVertex(model='claude-3-5-sonnet@20240620', temperature=0, location='us-east5')
+    # llm = ChatAnthropicVertex(model='claude-3-5-sonnet@20240620', temperature=0, location='us-east5')
     template = """The following is a friendly conversation, summarize all the conversation 
     to the most recent conversations.The conversation will be given in the form Human and AI messages.
     If no conversation is provided respond with " ".
@@ -144,10 +144,10 @@ def classify_question(state):
     )
     
     # LLM
-    # llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
+    llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
     # llm = ChatVertexAI(model_name='gemini-1.5-pro', temperature=0)
     # llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
-    llm = ChatAnthropicVertex(model='claude-3-5-sonnet@20240620', temperature=0, location='us-east5')
+    # llm = ChatAnthropicVertex(model='claude-3-5-sonnet@20240620', temperature=0, location='us-east5')
 
     # Chain
     classification_chain = prompt | llm | StrOutputParser()
@@ -242,10 +242,10 @@ def generate(state):
     )
 
     # LLM
-    # llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
+    llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
     # llm = ChatVertexAI(model_name='gemini-1.5-pro', temperature=0)
     # llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
-    llm = ChatAnthropicVertex(model='claude-3-5-sonnet@20240620', temperature=0, location='us-east5')
+    # llm = ChatAnthropicVertex(model='claude-3-5-sonnet@20240620', temperature=0, location='us-east5')
 
     # Chain
     rag_chain = prompt_template | llm | StrOutputParser()
@@ -284,12 +284,12 @@ def grading_documents(state):
     summary_memory = state_dict["summary_memory"]
 
     # LLM
-    # model = ChatGoogleGenerativeAI(
-    #     model="gemini-pro", verbose=True, temperature=0, streaming=True
-    # )
+    model = ChatGoogleGenerativeAI(
+        model="gemini-pro", verbose=True, temperature=0, streaming=True
+    )
     # model = ChatGroq(temperature=0, model_name="llama3-70b-8192")
     # model = ChatVertexAI(model_name='gemini-1.5-pro', temperature=0)
-    model = ChatAnthropicVertex(model='claude-3-5-sonnet@20240620', temperature=0, location='us-east5')
+    # model = ChatAnthropicVertex(model='claude-3-5-sonnet@20240620', temperature=0, location='us-east5')
 
     # Prompt
     prompt = PromptTemplate(
@@ -357,12 +357,12 @@ def transform_query(state):
     )
 
     # Grader
-    # model = ChatGoogleGenerativeAI(
-    #     model="gemini-pro", verbose=True, temperature=0, streaming=True
-    # )
+    model = ChatGoogleGenerativeAI(
+        model="gemini-pro", verbose=True, temperature=0, streaming=True
+    )
     # model = ChatGroq(temperature=0, model_name="llama3-70b-8192")
-    model = ChatVertexAI(model_name='gemini-1.5-pro', temperature=0)
-    model = ChatAnthropicVertex(model='claude-3-5-sonnet@20240620', temperature=0, location='us-east5')
+    # model = ChatVertexAI(model_name='gemini-1.5-pro', temperature=0)
+    # model = ChatAnthropicVertex(model='claude-3-5-sonnet@20240620', temperature=0, location='us-east5')
 
     chain = prompt | model | StrOutputParser()
     better_question = chain.invoke({"question": question, "chat_history": summary_memory})
@@ -449,10 +449,10 @@ def handle_general(state):
     )
 
     # LLM
-    # llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
+    llm = ChatGoogleGenerativeAI(model="gemini-pro", verbose=True, temperature=0)
     # llm = ChatVertexAI(model_name='gemini-1.5-pro', temperature=0)
     # llm = ChatGroq(temperature=0, model_name="llama3-70b-8192")
-    llm = ChatAnthropicVertex(model='claude-3-5-sonnet@20240620', temperature=0, location='us-east5')
+    # llm = ChatAnthropicVertex(model='claude-3-5-sonnet@20240620', temperature=0, location='us-east5')
    
     # Chain
     general_chain = prompt | llm | StrOutputParser()
