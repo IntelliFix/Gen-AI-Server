@@ -225,10 +225,14 @@ def generate(state):
     summary_memory = state_dict["summary_memory"]
 
     # Prompt
+    # template = """
+    #     Given the following documents {documents} and {chat_history} what is the answer to the following question: {question}.
+    #     If the provided context is not enough, reply with 'I don't have the information'.
+    #     """
     template = """
-        Given the following documents {documents} and {chat_history} what is the answer to the following question: {question}.
-        If the provided context is not enough, reply with 'I don't have the information'.
+        Given the following documents {documents} and {chat_history} and your knowledge what is the answer to the following question: {question}.
         """
+    
     prompt_template = PromptTemplate(
         input_variables=["documents", "chat_history", "question"],
         template=template,
