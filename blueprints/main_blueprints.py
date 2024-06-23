@@ -54,7 +54,8 @@ def chat():
         session_id = request_data.get("session_id")
         message = request_data.get("message")
         # print("Chatbot")
-        response = crag(session_id=session_id, user_input=message)
+        # response = crag(session_id=session_id, user_input=message)
+        response = chatbot(session_id=session_id, user_input=message)
         return {"output": response}
 
     except Exception as e:
